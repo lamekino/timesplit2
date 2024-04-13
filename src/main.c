@@ -6,42 +6,50 @@
 #include "parser/parser.h"
 #include "types/stack.h"
 #include "types/song.h"
+#include "types/resource.h"
 
 #define BUFFER_SIZE 1024
 
-#define EXIT_WHEN(p, blame) \
-    do { \
-        if (p) { \
-            perror(blame); \
-            exit(EXIT_FAILURE); \
-        } \
-    } while (0);
-
 int main() {
-    size_t i = 0;
+    const char *filename = "./sample-input/MzCEqlPp0L8";
+    size_t lineno = 1;
+    size_t i;
 
-    wchar_t line_buf[BUFFER_SIZE] = {0};
+    struct ResoureArena arena = {0};
+
+    wchar_t linebuf[BUFFER_SIZE] = {0};
     struct Stack data = {0};
-    FILE *fp = fopen("./sample-input/MzCEqlPp0L8", "r");
 
-    /* TODO: defer */
-    EXIT_WHEN(!fp, "fopen");
-    EXIT_WHEN(!setlocale(LC_ALL, "en_US.UTF-8"), "setlocale");
-    EXIT_WHEN(!stack_create(&data), "malloc");
+    FILE *fp = defer_file_resource(&arena, filename, "r");
+    if (!fp) {
+        report_fatal_error(&arena, "could not open file %s", filename);
+    }
 
-    while ((fgetws(line_buf, BUFFER_SIZE, fp))) {
+    if (!defer_stack_resource(&arena, &data)) {
+        report_fatal_error(&arena, "could not create data stack");
+    }
+
+    if (!setlocale(LC_ALL, "en_US.UTF-8")) {
+        report_fatal_error(&arena, "could not set locale");
+    }
+
+    while ((fgetws(linebuf, BUFFER_SIZE, fp))) {
         struct Song song;
-        if (wcsncmp(line_buf, L"\n", BUFFER_SIZE) == 0) continue;
 
-        song = parse_line(line_buf, BUFFER_SIZE);
+        if (wcsncmp(linebuf, L"\n", BUFFER_SIZE) == 0) continue;
+
+        song = parse_line(linebuf, BUFFER_SIZE);
 
         if (IS_PARSE_ERROR(song)) {
-            break;
+            report_fatal_error(&arena, "could not parse line %ld: \"%ls\"",
+                    lineno, linebuf);
         }
 
         if (!stack_push(&data, &song, sizeof(struct Song))) {
-            break;
+            report_fatal_error(&arena, "could not push to stack");
         }
+
+        lineno++;
     }
 
     for (i = 0; i < data.count; i++) {
@@ -49,8 +57,6 @@ int main() {
         printf("L\"%ls\": %ld\n", cur->title, cur->timestamp);
     }
 
-    stack_cleanup(&data, free_song);
-    fclose(fp);
-
+    free_all_resources(&arena);
     return EXIT_SUCCESS;
 }
