@@ -4,9 +4,11 @@
 #include <string.h>
 
 #include "parser/parser.h"
+#include "types/stack.h"
 
 #define WDIGIT(wc) ((wc) - L'0')
 #define LENGTH(xs) (sizeof((xs))/sizeof((xs)[0]))
+#define BUFFER_SIZE 1024
 
 static int
 parse_timestamp_helper(wchar_t digit, int value, int layer, int max_depth,
@@ -119,7 +121,33 @@ parse_line_helper(const wchar_t *line_buf, const wchar_t *cursor,
     }
 }
 
-struct Song
+static struct Song
 parse_line(const wchar_t *line_buf, size_t max_len) {
     return parse_line_helper(line_buf, line_buf, 0, max_len);
+}
+
+int
+parse_stream(FILE *stream, struct Stack *dest) {
+    int lineno = 1;
+    wchar_t linebuf[BUFFER_SIZE] = {0};
+
+    while ((fgetws(linebuf, BUFFER_SIZE, stream))) {
+        struct Song song;
+
+        if (wcsncmp(linebuf, L"\n", BUFFER_SIZE) == 0) continue;
+
+        song = parse_line(linebuf, BUFFER_SIZE);
+
+        if (IS_PARSE_ERROR(song)) {
+            return -1;
+        }
+
+        if (!stack_push(dest, &song, sizeof(struct Song))) {
+            return -1;
+        }
+
+        lineno++;
+    }
+
+    return lineno;
 }

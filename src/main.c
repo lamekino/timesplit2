@@ -8,20 +8,17 @@
 #include "types/song.h"
 #include "types/resource.h"
 
-#define BUFFER_SIZE 1024
-
 int main() {
     const char *filename = "./sample-input/MzCEqlPp0L8";
-    size_t lineno = 1;
-    size_t i;
+    const char *localename = "en_US.UTF-8";
 
     struct ResoureArena arena = {0};
 
-    wchar_t linebuf[BUFFER_SIZE] = {0};
+    FILE *fp = NULL;
     struct Stack data = {0};
 
-    FILE *fp = defer_file_resource(&arena, filename, "r");
-    if (!fp) {
+    /* TODO: ensure that defers get freed on sigterm */
+    if (!defer_file_resource(&arena, &fp, filename, "r")) {
         report_fatal_error(&arena, "could not open file %s", filename);
     }
 
@@ -29,32 +26,20 @@ int main() {
         report_fatal_error(&arena, "could not create data stack");
     }
 
-    if (!setlocale(LC_ALL, "en_US.UTF-8")) {
-        report_fatal_error(&arena, "could not set locale");
+    if (!setlocale(LC_ALL, localename)) {
+        report_fatal_error(&arena, "could not set locale to %s", localename);
     }
 
-    while ((fgetws(linebuf, BUFFER_SIZE, fp))) {
-        struct Song song;
-
-        if (wcsncmp(linebuf, L"\n", BUFFER_SIZE) == 0) continue;
-
-        song = parse_line(linebuf, BUFFER_SIZE);
-
-        if (IS_PARSE_ERROR(song)) {
-            report_fatal_error(&arena, "could not parse line %ld: \"%ls\"",
-                    lineno, linebuf);
-        }
-
-        if (!stack_push(&data, &song, sizeof(struct Song))) {
-            report_fatal_error(&arena, "could not push to stack");
-        }
-
-        lineno++;
+    if (parse_stream(fp, &data) < 0) {
+        report_fatal_error(&arena, "error in parsing");
     }
 
-    for (i = 0; i < data.count; i++) {
-        struct Song *cur = data.elems[i];
-        printf("L\"%ls\": %ld\n", cur->title, cur->timestamp);
+    {
+        size_t i;
+        for (i = 0; i < data.count; i++) {
+            struct Song *cur = data.elems[i];
+            printf("L\"%ls\": %ld\n", cur->title, cur->timestamp);
+        }
     }
 
     free_all_resources(&arena);

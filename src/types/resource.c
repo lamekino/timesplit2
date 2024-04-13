@@ -54,8 +54,8 @@ defer_resource(struct ResoureArena *arena, void *ptr, enum ResourceType type) {
 }
 
 FILE *
-defer_file_resource(struct ResoureArena *arena, const char *filename,
-        const char *mode) {
+defer_file_resource(struct ResoureArena *arena, FILE **fpp,
+        const char *filename, const char *mode) {
     FILE *fp = fopen(filename, mode);
     if (!fp) {
         return NULL;
@@ -66,6 +66,7 @@ defer_file_resource(struct ResoureArena *arena, const char *filename,
         return NULL;
     }
 
+    *fpp = fp;
     return fp;
 }
 

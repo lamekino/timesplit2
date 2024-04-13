@@ -30,8 +30,8 @@ struct ResoureArena {
 };
 
 FILE *
-defer_file_resource(struct ResoureArena *arena, const char *filename,
-        const char *mode);
+defer_file_resource(struct ResoureArena *arena, FILE **fpp,
+        const char *filename, const char *mode);
 
 struct Stack *
 defer_stack_resource(struct ResoureArena *arena, struct Stack *stk);
