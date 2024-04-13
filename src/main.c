@@ -12,7 +12,7 @@
 #define PARSE_ERROR ((struct Song) { .timestamp = -1 })
 #define IS_PARSE_ERROR(song) ((song).timestamp == -1)
 
-#define WDIGIT(wc) ((wc) - '0')
+#define WDIGIT(wc) ((wc) - L'0')
 
 #define EXIT_WHEN(p, blame) \
     do { \
