@@ -1,4 +1,6 @@
 timesplit2
+compile_commands.json
+
 # Prerequisites
 *.d
 
