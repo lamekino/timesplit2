@@ -34,18 +34,10 @@ struct Song {
 
 #define stack_elem_t struct Song *
 
-#if 0
+#if USE_MEMCPY
 #define STACKCPY(dest, src, elem_size) memcpy(dest, src, elem_size)
-#endif
-
+#else
 #define STACKCPY(dest, src, _) (*(dest) = *(src), (dest))
-
-#if 0
-#define STACKCPY(dest, src, _) \
-    do { \
-        (dest)->timestamp = (src)->timestamp; \
-        (dest)->title = (src)->title; \
-    } while (0)
 #endif
 
 struct Stack {
@@ -132,7 +124,8 @@ stack_cleanup(struct Stack *stk, CloseCallback free_elem) {
     free(stk->elems);
 }
 
-void free_song(void *song) {
+void
+free_song(void *song) {
     struct Song *as_song = (struct Song *) song;
 
     free(as_song->title);
