@@ -22,8 +22,8 @@ union Timestamp {
 };
 
 static int
-parse_ts_digit(wchar_t digit, int value, int layer, int depth) {
-    if (layer != 0 && depth > 2) {
+parse_ts_digit(wchar_t digit, int value, int layer, int digitnum) {
+    if (layer != 0 && digitnum >= 2) {
         return -1;
     }
 
@@ -33,14 +33,14 @@ parse_ts_digit(wchar_t digit, int value, int layer, int depth) {
 
 static int
 parse_ts_helper(const wchar_t *line, size_t len, size_t pos,
-        const int *base, int *cur, size_t depth) {
-    const size_t fieldno = cur - base;
+        const int *base, int *cur, size_t digitnum) {
+    const size_t fieldnum = cur - base;
 
     if (pos >= len) {
         return 0;
     }
 
-    if (fieldno >= TS_FIELDS) {
+    if (fieldnum >= TS_FIELDS) {
         return -1;
     }
 
@@ -55,19 +55,19 @@ parse_ts_helper(const wchar_t *line, size_t len, size_t pos,
     case L'8':
     case L'9':
     case L'0':
-        *cur = parse_ts_digit(line[pos], *cur, fieldno, depth);
+        *cur = parse_ts_digit(line[pos], *cur, fieldnum, digitnum);
         if (*cur < 0) break;
 
+        digitnum += 1;
         pos +=1;
-        depth += 1;
 
-        return parse_ts_helper(line, len, pos, base, cur, depth);
+        return parse_ts_helper(line, len, pos, base, cur, digitnum);
     case L':':
-        depth = 0;
-        cur += 1;
+        digitnum = 0;
         pos += 1;
+        cur += 1;
 
-        return parse_ts_helper(line, len, pos, base, cur, depth);
+        return parse_ts_helper(line, len, pos, base, cur, digitnum);
     default:
         break;
     }
@@ -113,7 +113,7 @@ parse_timestamp(const wchar_t *line, size_t len) {
         return -1;
     }
 
-    result = parse_ts_helper(line, len, 0, ts.items, &ts.items[layer], layer);
+    result = parse_ts_helper(line, len, 0, ts.items, &ts.items[layer], 0);
     if (result < 0) {
         return -1;
     }
