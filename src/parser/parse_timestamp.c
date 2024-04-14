@@ -22,7 +22,7 @@ union Timestamp {
 };
 
 static int
-parse_timestamp_digit(wchar_t digit, int value, int layer, int depth) {
+parse_ts_digit(wchar_t digit, int value, int layer, int depth) {
     if (layer != 0 && depth > 2) {
         return -1;
     }
@@ -32,7 +32,7 @@ parse_timestamp_digit(wchar_t digit, int value, int layer, int depth) {
 
 
 static int
-parse_timestamp_helper(const wchar_t *line, size_t len, size_t pos,
+parse_ts_helper(const wchar_t *line, size_t len, size_t pos,
         const int *base, int *cur, size_t depth) {
     const size_t fieldno = cur - base;
 
@@ -55,19 +55,19 @@ parse_timestamp_helper(const wchar_t *line, size_t len, size_t pos,
     case L'8':
     case L'9':
     case L'0':
-        *cur = parse_timestamp_digit(line[pos], *cur, fieldno, depth);
+        *cur = parse_ts_digit(line[pos], *cur, fieldno, depth);
         if (*cur < 0) break;
 
         pos +=1;
         depth += 1;
 
-        return parse_timestamp_helper(line, len, pos, base, cur, depth);
+        return parse_ts_helper(line, len, pos, base, cur, depth);
     case L':':
         depth = 0;
         cur += 1;
         pos += 1;
 
-        return parse_timestamp_helper(line, len, pos, base, cur, depth);
+        return parse_ts_helper(line, len, pos, base, cur, depth);
     default:
         break;
     }
@@ -88,7 +88,7 @@ character_count(wchar_t ch, const wchar_t *ws, size_t len) {
 }
 
 static int
-parse_timestamp_init_layer(const wchar_t *line, size_t len) {
+parse_ts_init_layer(const wchar_t *line, size_t len) {
     int count = character_count(L':', line, len);
 
     switch (count) {
@@ -108,13 +108,12 @@ parse_timestamp(const wchar_t *line, size_t len) {
     int result, layer;
     union Timestamp ts = {0};
 
-    layer = parse_timestamp_init_layer(line, len);
+    layer = parse_ts_init_layer(line, len);
     if (layer < 0) {
         return -1;
     }
 
-    result =
-        parse_timestamp_helper(line, len, 0, ts.items, &ts.items[layer], layer);
+    result = parse_ts_helper(line, len, 0, ts.items, &ts.items[layer], layer);
     if (result < 0) {
         return -1;
     }
