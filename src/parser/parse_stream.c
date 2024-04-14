@@ -1,7 +1,7 @@
 #include <wchar.h>
 
 #include "parser/parse_line.h"
-#include "parser/parser.h"
+#include "parser/parse_stream.h"
 #include "types/stack.h"
 
 #define BUFFER_SIZE 1024
