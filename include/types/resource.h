@@ -40,6 +40,6 @@ void
 free_all_resources(struct ResoureArena *arena);
 
 void
-report_fatal_error(struct ResoureArena *arena, const char *fmt, ...);
+fatal_error(struct ResoureArena *arena, const char *fmt, ...);
 
 #endif /* RESOURCE_H */

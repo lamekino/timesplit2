@@ -18,19 +18,19 @@ int main() {
     struct Stack data = {0};
 
     if (!defer_file_resource(&arena, &fp, filename, "r")) {
-        report_fatal_error(&arena, "could not open file %s", filename);
+        fatal_error(&arena, "could not open file %s", filename);
     }
 
     if (!defer_stack_resource(&arena, &data)) {
-        report_fatal_error(&arena, "could not create data stack");
+        fatal_error(&arena, "could not create data stack");
     }
 
     if (!setlocale(LC_ALL, localename)) {
-        report_fatal_error(&arena, "could not set locale to %s", localename);
+        fatal_error(&arena, "could not set locale to %s", localename);
     }
 
     if (parse_stream(fp, &data) < 0) {
-        report_fatal_error(&arena, "error in parsing");
+        fatal_error(&arena, "error in parsing");
     }
 
     {
