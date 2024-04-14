@@ -2,72 +2,122 @@
 #include <time.h>
 
 #include "parser/parse_timestamp.h"
-#include "parser/parse_line.h"
 
 #define LENGTH(xs) (sizeof((xs))/sizeof((xs)[0]))
-#define WDIGIT(wc) ((wc) - L'0')
+#define WCDIGIT(wc) ((wc) - L'0')
+
+#define HOUR_SECOND(h) (3600 * (h))
+#define MIN_SECOND(m) (60 * (m))
+
+#define TS_FIELDS 3
+
+union Timestamp {
+    struct {
+        int hour;
+        int min;
+        int sec;
+    };
+
+    int items[TS_FIELDS];
+};
 
 static int
-parse_timestamp_helper(wchar_t digit, int value, int layer, int max_depth,
-        int depth) {
-    if (layer != 0 && depth > max_depth) {
+parse_timestamp_digit(wchar_t digit, int value, int layer, int depth) {
+    if (layer != 0 && depth > 2) {
         return -1;
     }
 
-    return 10 * value + WDIGIT(digit);
+    return 10 * value + WCDIGIT(digit);
 }
 
-/* TODO: this function badly needs refactored */
-time_t
-parse_timestamp(const wchar_t *line, size_t len) {
-    /* WARNING: we need to pre-parsed this to know the max number of layers
-     * since it could be XX:XX */
-    const int coeffs[] = { 3600, 60, 1 };
-    const size_t max_layers = LENGTH(coeffs);
 
-    int values[LENGTH(coeffs)] = {0};
-    int *cur = &values[0];
+static int
+parse_timestamp_helper(const wchar_t *line, size_t len, size_t pos,
+        const int *base, int *cur, size_t depth) {
+    const size_t fieldno = cur - base;
 
+    if (pos >= len) {
+        return 0;
+    }
+
+    if (fieldno >= TS_FIELDS) {
+        return -1;
+    }
+
+    switch (line[pos]) {
+    case L'1':
+    case L'2':
+    case L'3':
+    case L'4':
+    case L'5':
+    case L'6':
+    case L'7':
+    case L'8':
+    case L'9':
+    case L'0':
+        *cur = parse_timestamp_digit(line[pos], *cur, fieldno, depth);
+        if (*cur < 0) break;
+
+        pos +=1;
+        depth += 1;
+
+        return parse_timestamp_helper(line, len, pos, base, cur, depth);
+    case L':':
+        depth = 0;
+        cur += 1;
+        pos += 1;
+
+        return parse_timestamp_helper(line, len, pos, base, cur, depth);
+    default:
+        break;
+    }
+
+    return -1;
+}
+
+static int
+character_count(wchar_t ch, const wchar_t *ws, size_t len) {
     size_t i;
-    size_t layer = 0;
-    size_t depth = 0;
-
-    time_t ret = 0;
+    int count = 0;
 
     for (i = 0; i < len; i++) {
-        if (layer >= max_layers) {
-            return -1;
-        }
-
-        switch (line[i]) {
-        case L'1':
-        case L'2':
-        case L'3':
-        case L'4':
-        case L'5':
-        case L'6':
-        case L'7':
-        case L'8':
-        case L'9':
-        case L'0':
-            depth++;
-            *cur = parse_timestamp_helper(line[i], *cur, layer, 2, depth);
-            break;
-        case L':':
-            depth = 0; cur++; layer++;
-            break;
-        default:
-            return -1;
-        }
-
-        if (*cur == -1) {
-            return -1;
-        }
+        if (ws[i] == ch) count++;
     }
 
-    for (i = 0; i < max_layers; i++) {
-        ret += coeffs[i] * values[i];
+    return count;
+}
+
+static int
+parse_timestamp_init_layer(const wchar_t *line, size_t len) {
+    int count = character_count(L':', line, len);
+
+    switch (count) {
+    case 2:
+        return 0;
+    case 1:
+        return 1;
+    default:
+        break;
     }
 
-    return ret;
+    return -1;
+}
+
+time_t
+parse_timestamp(const wchar_t *line, size_t len) {
+    int result, layer;
+    union Timestamp ts = {0};
+
+    layer = parse_timestamp_init_layer(line, len);
+    if (layer < 0) {
+        return -1;
+    }
+
+    result =
+        parse_timestamp_helper(line, len, 0, ts.items, &ts.items[layer], layer);
+    if (result < 0) {
+        return -1;
+    }
+
+    return ts.sec + MIN_SECOND(ts.min) + HOUR_SECOND(ts.hour);
 }
