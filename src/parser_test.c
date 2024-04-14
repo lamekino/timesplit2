@@ -3,12 +3,18 @@
 #include <stdlib.h>
 #include <wchar.h>
 
-#include "parser/parser.h"
+#include "parser/parse_stream.h"
 #include "types/stack.h"
 #include "types/song.h"
 #include "types/resource.h"
 
-int main() {
+#ifdef PARSER_TEST
+#define parse_test main
+#else
+#define parse_test parse_test
+#endif
+
+int parse_test() {
     const char *filename = "./sample-input/MzCEqlPp0L8";
     const char *localename = "en_US.UTF-8";
 

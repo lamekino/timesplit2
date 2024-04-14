@@ -10,6 +10,7 @@ endif
 
 CC = gcc
 INCLUDE = -I$(INC_DIR)
+LIBS = -lSDL2_mixer
 
 ifeq ($(DEBUG),1)
 	CCFLAGS = \
@@ -41,6 +42,6 @@ $(PROG_NAME): $(OBJ)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(dir $@) || true
-	$(CC) $(INCLUDE) $(CCFLAGS) -c -o $@ $<
+	$(CC) $(INCLUDE) $(LIBS) $(CCFLAGS) -c -o $@ $<
 
 .PHONY: all clean install compile_commands.json
