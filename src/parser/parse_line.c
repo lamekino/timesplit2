@@ -3,7 +3,7 @@
 #include <wchar.h>
 
 #include "types/song.h"
-#include "parser/parser.h"
+#include "parser/parse_stream.h"
 #include "parser/parse_timestamp.h"
 
 static struct Song
