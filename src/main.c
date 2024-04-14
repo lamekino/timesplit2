@@ -17,7 +17,6 @@ int main() {
     FILE *fp = NULL;
     struct Stack data = {0};
 
-    /* TODO: ensure that defers get freed on sigterm */
     if (!defer_file_resource(&arena, &fp, filename, "r")) {
         report_fatal_error(&arena, "could not open file %s", filename);
     }

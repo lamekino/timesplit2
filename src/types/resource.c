@@ -107,4 +107,6 @@ report_fatal_error(struct ResoureArena *arena, const char *fmt, ...) {
     free_all_resources(arena);
 
     va_end(ap);
+
+    exit(EXIT_FAILURE);
 }
