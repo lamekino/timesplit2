@@ -9,8 +9,11 @@ ifeq ($(PREFIX),)
 endif
 
 CC = gcc
-INCLUDE = -I$(INC_DIR)
-LIBS = -lSDL2_mixer
+
+LDFLAGS = -I$(INC_DIR) \
+	`pkg-config --cflags --libs sdl2` \
+	`pkg-config --cflags --libs SDL2_mixer` \
+	`pkg-config --cflags --libs sndfile` \
 
 ifeq ($(DEBUG),1)
 	CCFLAGS = \
@@ -38,10 +41,10 @@ compile_commands.json:
 	@bear -- make
 
 $(PROG_NAME): $(OBJ)
-	$(CC) -o $@ $^
+	$(CC) $(LDFLAGS) -o $@ $^
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(dir $@) || true
-	$(CC) $(INCLUDE) $(LIBS) $(CCFLAGS) -c -o $@ $<
+	$(CC) $(CCFLAGS) $(LDFLAGS) -c -o $@ $<
 
 .PHONY: all clean install compile_commands.json

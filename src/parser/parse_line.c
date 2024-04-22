@@ -33,7 +33,6 @@ parse_line_helper(const wchar_t *line_buf, const wchar_t *cursor,
         return PARSE_ERROR;
     }
 
-
     /* WARN: idk what will happen if ' ' is the final char */
     switch (*cursor) {
     case L'1':
