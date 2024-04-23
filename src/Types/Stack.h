@@ -1,5 +1,4 @@
-#ifndef STACK_H
-#define STACK_H
+#pragma once
 
 #include <stddef.h>
 #include "Types/Song.h" /* TODO: make this generic, remove this */
@@ -32,5 +31,3 @@ stack_mod_index(const struct Stack *stk, size_t idx);
 
 void
 stack_cleanup(struct Stack *stk, CloseCallback free_elem);
-
-#endif /* STACK_H */
