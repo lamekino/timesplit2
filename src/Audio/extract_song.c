@@ -44,18 +44,15 @@ extract_section(SoundFile *src, SoundFile *dest, const sf_count_t start,
         pos < finish || is_last_song;
         pos += copy_size / channels
     ) {
-        sf_count_t read, wrote;
         sf_count_t remaining = (finish - pos) * channels;
 
         copy_size = is_last_song? buflen : MIN(remaining, buflen);
 
-        read = sf_read_double(src->file, songbuf, copy_size);
-        if (read != copy_size) {
+        if (sf_read_double(src->file, songbuf, copy_size) <= 0) {
             return is_last_song? 0 : -1;
         }
 
-        wrote = sf_write_double(dest->file, songbuf, copy_size);
-        if (wrote != copy_size) {
+        if (sf_write_double(dest->file, songbuf, copy_size) != copy_size) {
             return -1;
         }
     }
