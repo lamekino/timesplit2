@@ -42,10 +42,10 @@ int main(int argc, char *argv[]) {
         goto FAIL;
     }
 
-    songlist_stack_cleanup(&parsed, free_song);
+    songlist_cleanup(&parsed, free_song);
     return EXIT_SUCCESS;
 FAIL:
-    songlist_stack_cleanup(&parsed, free_song);
+    songlist_cleanup(&parsed, free_song);
     return EXIT_FAILURE;
 
 }
