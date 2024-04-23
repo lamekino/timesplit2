@@ -2,9 +2,9 @@
 #include <string.h>
 #include <wchar.h>
 
-#include "types/song.h"
-#include "parser/parse_stream.h"
-#include "parser/parse_timestamp.h"
+#include "Types/Song.h"
+#include "Parser/parse_stream.h"
+#include "Parser/parse_timestamp.h"
 
 static struct Song
 parse_line_finish(const wchar_t *line_buf, const wchar_t *cursor, size_t delta) {

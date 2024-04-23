@@ -1,7 +1,6 @@
 #include <stdio.h>
-#include <stdlib.h>
 
-#include "parser/parse_stream.h"
+#include "Parser/parse_stream.h"
 
 int
 parse_file(const char *filepath, struct Stack *dest) {

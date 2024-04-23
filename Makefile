@@ -1,7 +1,5 @@
-# TODO: compile to library
 PROG_NAME = timesplit2
 OBJ_DIR = ./obj
-INC_DIR = ./include
 SRC_DIR = ./src
 
 ifeq ($(PREFIX),)
@@ -10,10 +8,8 @@ endif
 
 CC = gcc
 
-LDFLAGS = -I$(INC_DIR) \
-	`pkg-config --cflags --libs sdl2` \
-	`pkg-config --cflags --libs SDL2_mixer` \
-	`pkg-config --cflags --libs sndfile` \
+LDFLAGS = -I$(SRC_DIR) \
+	`pkg-config --cflags --libs sndfile`
 
 ifeq ($(DEBUG),1)
 	CCFLAGS = \

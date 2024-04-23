@@ -1,5 +1,4 @@
-#ifndef SONG_H
-#define SONG_H
+#pragma once
 
 #include <time.h>
 #include <wchar.h>
@@ -13,5 +12,3 @@ typedef const struct Song Song;
 
 void
 free_song(void *song);
-
-#endif /* SONG_H */

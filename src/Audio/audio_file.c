@@ -1,4 +1,4 @@
-#include "audio/audio_file.h"
+#include "Audio/audio_file.h"
 
 SNDFILE *
 audio_open(struct AudioFile *audiofile, const char *path, int mode) {

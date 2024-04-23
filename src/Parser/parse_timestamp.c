@@ -1,7 +1,7 @@
 #include <wchar.h>
 #include <time.h>
 
-#include "parser/parse_timestamp.h"
+#include "Parser/parse_timestamp.h"
 
 #define LENGTH(xs) (sizeof((xs))/sizeof((xs)[0]))
 #define WCDIGIT(wc) ((wc) - L'0')
@@ -105,7 +105,7 @@ parse_ts_init_layer(const wchar_t *line, size_t len) {
 
 time_t
 parse_timestamp(const wchar_t *line, size_t len) {
-    int result, layer;
+    int layer;
     union Timestamp ts = {0};
 
     layer = parse_ts_init_layer(line, len);
@@ -113,8 +113,7 @@ parse_timestamp(const wchar_t *line, size_t len) {
         return -1;
     }
 
-    result = parse_ts_helper(line, len, 0, ts.items, &ts.items[layer], 0);
-    if (result < 0) {
+    if (parse_ts_helper(line, len, 0, ts.items, &ts.items[layer], 0) < 0) {
         return -1;
     }
 

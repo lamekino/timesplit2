@@ -1,5 +1,8 @@
-#ifndef AUDIO_FILE_H
-#define AUDIO_FILE_H
+#pragma once
+
+#ifdef AUDIO_HIDE_IMPL
+AUDIO_HIDE_IMPL
+#endif
 
 #include <sndfile.h>
 
@@ -15,5 +18,3 @@ audio_open(struct AudioFile *audiofile, const char *path, int mode);
 
 int
 audio_close(AudioFile *audiofile);
-
-#endif /* AUDIO_FILE_H */

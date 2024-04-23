@@ -1,7 +1,6 @@
 #include <stdlib.h>
 
-#include "types/stack.h"
-#include "types/song.h"
+#include "Types/Stack.h"
 
 #if USE_MEMCPY
 #define STACKCPY(dest, src, elem_size) memcpy(dest, src, elem_size)
@@ -76,6 +75,11 @@ stack_pop(struct Stack *stk) {
 
     stk->count--;
     return stk->elems[stk->count];
+}
+
+stack_elem_t
+stack_mod_index(const struct Stack *stk, size_t idx) {
+    return stk->elems[idx % stk->count];
 }
 
 void

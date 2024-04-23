@@ -1,9 +1,9 @@
 #include <string.h>
 #include <sndfile.h>
 
-#include "types/song.h"
-#include "audio/audio_file.h"
-#include "audio/audio_extract.h"
+#include "Types/Song.h"
+#include "Audio/audio_file.h"
+#include "Audio/audio_extract.h"
 
 #define MIN(x, y) ((x) > (y) ? (y) : (x))
 

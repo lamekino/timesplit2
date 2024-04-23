@@ -5,17 +5,18 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-#include "types/stack.h"
-#include "types/song.h"
-#include "parser/circular_index.h" /* BAD move to own module for parser type ops */
+#include "Types/Stack.h"
+#include "Types/Song.h"
 
-#include "audio/audio_extract.h"
-#include "audio/audio_file.h"
+#include "Audio/audio_extract.h"
+#include "Audio/audio_file.h"
 
 #define DEFAULT_PROMPT "type -1 to quit >> "
 #define MSG_PROMPT(msg) (msg "\n" DEFAULT_PROMPT)
 
 #define LENGTH(xs) (sizeof(xs)/sizeof((xs)[0]))
+
+typedef const struct Stack Timestamps;
 
 union UserIndex {
     int got;
@@ -51,11 +52,11 @@ read_yes_no(const char *fmt, ...) {
 }
 
 static union UserIndex
-menu_interact(Parsed *parsed, const char *fmt, ...) {
+menu_interact(Timestamps *ts, const char *fmt, ...) {
     size_t i;
 
-    for (i = 0; i < parsed->count; i++) {
-        Song *cur = parsed->elems[i];
+    for (i = 0; i < ts->count; i++) {
+        Song *cur = ts->elems[i];
 
         printf("[%zu] %ls [+%lds]\n", i + 1, cur->title, cur->timestamp);
     }
@@ -89,12 +90,12 @@ song_frame_offset(Song *song, int samplerate) {
  * }
  */
 static int
-song_interact(AudioFile *src, Parsed *parsed, size_t idx,
+song_interact(AudioFile *src, Timestamps *ts, size_t idx,
         double *songbuf, sf_count_t buflen) {
     const int rate = src->info.samplerate;
 
-    Song *cur = circular_index(parsed, idx);
-    Song *next = circular_index(parsed, idx + 1);
+    Song *cur = stack_mod_index(ts, idx);
+    Song *next = stack_mod_index(ts, idx + 1);
 
     const sf_count_t start = song_frame_offset(cur, rate);
     const sf_count_t finish = song_frame_offset(next, rate);
@@ -125,7 +126,7 @@ song_interact(AudioFile *src, Parsed *parsed, size_t idx,
 }
 
 int
-audio_interact(const char *audiopath, Parsed *parsed) {
+audio_interact(const char *audiopath, Timestamps *ts) {
     struct AudioFile audio = {0};
 
     double songbuf[4096];
@@ -135,8 +136,8 @@ audio_interact(const char *audiopath, Parsed *parsed) {
         return -1;
     }
 
-    while (1) {
-        union UserIndex in = menu_interact(parsed, DEFAULT_PROMPT);
+    while (true) {
+        union UserIndex in = menu_interact(ts, DEFAULT_PROMPT);
 
         if (in.got == EOF) {
             break;
@@ -144,14 +145,15 @@ audio_interact(const char *audiopath, Parsed *parsed) {
 
         /* if the recieved is negative, then it must be bigger than a realisic
          * parsed->count size in unsigned binary */
-        while (!(1 <= in.idx && in.idx <= parsed->count)) {
-            in = menu_interact(parsed, MSG_PROMPT("invalid value: %d"), in.got);
+        while (!(1 <= in.idx && in.idx <= ts->count)) {
+            in = menu_interact(ts, MSG_PROMPT("invalid value: %d"), in.got);
             if (in.got == EOF) {
                 break;
             }
         }
 
-        if (song_interact(&audio, parsed, in.idx - 1, songbuf, len) < 0) {
+        /* FIXME: handle this error */
+        if (song_interact(&audio, ts, in.idx - 1, songbuf, len) < 0) {
             break;
         }
     }

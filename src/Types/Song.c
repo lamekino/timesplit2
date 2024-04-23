@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "types/song.h"
+#include "Types/Song.h"
 
 void
 free_song(void *song) {

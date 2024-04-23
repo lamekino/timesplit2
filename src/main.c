@@ -3,11 +3,10 @@
 #include <stdlib.h>
 #include <locale.h>
 
-#include "audio/audio.h"
-#include "parser/parser.h"
-
-#include "types/stack.h"
-#include "types/song.h"
+#include "Types/Stack.h"
+#include "Types/Song.h"
+#include "Audio/Audio.h"
+#include "Parser/Parser.h"
 
 int main(int argc, char *argv[]) {
     const char *filename = "./sample-input/MzCEqlPp0L8";
