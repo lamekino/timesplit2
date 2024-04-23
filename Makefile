@@ -2,6 +2,8 @@ PROG_NAME = timesplit2
 OBJ_DIR = ./obj
 SRC_DIR = ./src
 
+OUTPUT_EXT = m1a
+
 ifeq ($(PREFIX),)
 	PREFIX := /usr/local
 endif
@@ -29,7 +31,7 @@ OBJ = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRC))
 all: $(PROG_NAME)
 
 clean:
-	rm -fr $(OBJ_DIR) *$(PROG_NAME)
+	rm -fr $(OBJ_DIR) *$(PROG_NAME) *.$(OUTPUT_EXT)
 
 install: all
 	install -m 0755 $(PROG_NAME) $(PREFIX)/bin
