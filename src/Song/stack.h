@@ -26,7 +26,7 @@ songlist_push_item(struct SongList *stk, const stack_elem_t item_ptr,
 
 #ifndef USE_MEMCPY
 #define songlist_push(stk, item_ptr) \
-    songlist_push_item((stk), (item_ptr), sizeof(stack_elem_t))
+    songlist_push_item((stk), (item_ptr), sizeof(*stk->elems[0]))
 #else
 #define songlist_push(stk, item_ptr, item_size) \
     songlist_push_item((stk), (item_ptr), (item_size))

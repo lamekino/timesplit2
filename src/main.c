@@ -2,12 +2,10 @@
 #include <stdlib.h>
 #include <locale.h>
 
-#include "Args/process_args.h"
-#include "Song/Song.h"
-
 #include "Args/Args.h"
 #include "Audio/Audio.h"
 #include "Parser/Parser.h"
+#include "Song/Song.h"
 
 int main(int argc, char *argv[]) {
     const char *filename = "./sample-input/MzCEqlPp0L8";
