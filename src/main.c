@@ -17,8 +17,6 @@ int main(int argc, char *argv[]) {
 
     struct Stack parsed = {0};
 
-    (void) argc; (void) argv;
-
     if (!stack_create(&parsed)) {
         fprintf(stderr, "could not create data stack\n");
         goto FAIL;
