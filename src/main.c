@@ -1,10 +1,12 @@
-#include <sndfile.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <locale.h>
 
+#include "Args/process_args.h"
 #include "Types/Stack.h"
 #include "Types/Song.h"
+
+#include "Args/Args.h"
 #include "Audio/Audio.h"
 #include "Parser/Parser.h"
 
@@ -27,7 +29,10 @@ int main(int argc, char *argv[]) {
         goto FAIL;
     }
 
-    /* TODO: process arguments */
+    if (process_args(argc, argv) < 0) {
+        fprintf(stderr, "could not process arguments");
+        goto FAIL;
+    }
 
     if (parse_file(filename, &parsed) < 0) {
         fprintf(stderr, "error in parsing\n");
