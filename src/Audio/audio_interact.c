@@ -8,8 +8,8 @@
 #include "Types/Stack.h"
 #include "Types/Song.h"
 
-#include "Audio/audio_extract.h"
-#include "Audio/audio_file.h"
+#include "Audio/extract_song.h"
+#include "Audio/soundfile.h"
 
 #define DEFAULT_PROMPT "type -1 to quit >> "
 #define MSG_PROMPT(msg) (msg "\n" DEFAULT_PROMPT)
@@ -90,7 +90,7 @@ song_frame_offset(Song *song, int samplerate) {
  * }
  */
 static int
-song_interact(AudioFile *src, Timestamps *ts, size_t idx,
+song_interact(SoundFile *src, Timestamps *ts, size_t idx,
         double *songbuf, sf_count_t buflen) {
     const int rate = src->info.samplerate;
 
@@ -112,7 +112,7 @@ song_interact(AudioFile *src, Timestamps *ts, size_t idx,
         return -1;
     }
 
-    if (audio_extract(src, cur, start, finish, songbuf, buflen) < 0) {
+    if (extract_song(src, cur, start, finish, songbuf, buflen) < 0) {
         return -1;
     }
 
@@ -127,12 +127,12 @@ song_interact(AudioFile *src, Timestamps *ts, size_t idx,
 
 int
 audio_interact(const char *audiopath, Timestamps *ts) {
-    struct AudioFile audio = {0};
+    struct SoundFile snd = {0};
 
     double songbuf[4096];
     const size_t len = LENGTH(songbuf);
 
-    if (!audio_open(&audio, audiopath, SFM_READ)) {
+    if (!soundfile_open(&snd, audiopath, SFM_READ)) {
         return -1;
     }
 
@@ -153,11 +153,11 @@ audio_interact(const char *audiopath, Timestamps *ts) {
         }
 
         /* FIXME: handle this error */
-        if (song_interact(&audio, ts, in.idx - 1, songbuf, len) < 0) {
+        if (song_interact(&snd, ts, in.idx - 1, songbuf, len) < 0) {
             break;
         }
     }
 
-    audio_close(&audio);
+    soundfile_close(&snd);
     return 0;
 }

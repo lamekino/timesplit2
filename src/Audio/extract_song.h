@@ -6,8 +6,8 @@ AUDIO_HIDE_IMPL
 
 #include <sndfile.h>
 #include "Types/Song.h"
-#include "Audio/audio_file.h"
+#include "Audio/soundfile.h"
 
 int
-audio_extract(AudioFile *src, Song *song, sf_count_t position,
+extract_song(SoundFile *src, Song *song, sf_count_t position,
         sf_count_t ending, double *songbuf, sf_count_t buflen);
