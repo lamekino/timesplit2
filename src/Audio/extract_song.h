@@ -5,7 +5,7 @@ AUDIO_HIDE_IMPL
 #endif
 
 #include <sndfile.h>
-#include "Types/Song.h"
+#include "Song/Song.h"
 #include "Audio/soundfile.h"
 
 int

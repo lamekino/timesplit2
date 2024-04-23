@@ -3,8 +3,7 @@
 #include <locale.h>
 
 #include "Args/process_args.h"
-#include "Types/Stack.h"
-#include "Types/Song.h"
+#include "Song/Song.h"
 
 #include "Args/Args.h"
 #include "Audio/Audio.h"
@@ -15,9 +14,9 @@ int main(int argc, char *argv[]) {
     const char *audiopath = "./sample-audio/MzCEqlPp0L8.mp3";
     const char *localename = "en_US.UTF-8";
 
-    struct Stack parsed = {0};
+    struct SongList parsed = {0};
 
-    if (!stack_create(&parsed)) {
+    if (!songlist_stack_create(&parsed)) {
         fprintf(stderr, "could not create data stack\n");
         goto FAIL;
     }
@@ -43,10 +42,10 @@ int main(int argc, char *argv[]) {
         goto FAIL;
     }
 
-    stack_cleanup(&parsed, free_song);
+    songlist_stack_cleanup(&parsed, free_song);
     return EXIT_SUCCESS;
 FAIL:
-    stack_cleanup(&parsed, free_song);
+    songlist_stack_cleanup(&parsed, free_song);
     return EXIT_FAILURE;
 
 }

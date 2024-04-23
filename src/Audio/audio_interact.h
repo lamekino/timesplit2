@@ -4,6 +4,6 @@
 AUDIO_HIDE_IMPL
 #endif
 
-#include "Types/Stack.h"
+#include "Song/Song.h"
 
-int audio_interact(const char *audiopath, const struct Stack *parsed);
+int audio_interact(const char *audiopath, const struct SongList *parsed);

@@ -2,7 +2,7 @@
 #include <string.h>
 #include <wchar.h>
 
-#include "Types/Song.h"
+#include "Song/Song.h"
 #include "Parser/parse_stream.h"
 #include "Parser/parse_timestamp.h"
 

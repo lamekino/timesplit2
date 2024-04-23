@@ -8,7 +8,8 @@ endif
 
 CC = gcc
 
-LDFLAGS = -I$(SRC_DIR) \
+LDFLAGS = \
+	-I$(SRC_DIR) \
 	`pkg-config --cflags --libs sndfile`
 
 ifeq ($(DEBUG),1)

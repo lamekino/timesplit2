@@ -4,7 +4,7 @@
 PARSER_HIDE_IMPL
 #endif
 
-#include "Types/Stack.h"
+#include "Song/Song.h"
 
 int
-parse_file(const char *filepath, struct Stack *dest);
+parse_file(const char *filepath, struct SongList *dest);

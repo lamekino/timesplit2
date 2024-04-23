@@ -3,7 +3,7 @@
 #include "Parser/parse_stream.h"
 
 int
-parse_file(const char *filepath, struct Stack *dest) {
+parse_file(const char *filepath, struct SongList *dest) {
     int lines_parsed;
     FILE *fp = fopen(filepath, "r");
 
