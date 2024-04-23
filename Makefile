@@ -18,7 +18,7 @@ ifeq ($(DEBUG),1)
 		-D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=500 -DDEBUG=1
 else
 	CCFLAGS = \
-		-std=c89 -ansi -Wall -Wextra -Werror -O3 \
+		-std=c89 -ansi -O3 -Wall -Wextra -Werror -Wno-unused-function \
 		-D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=500
 endif
 
