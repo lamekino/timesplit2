@@ -19,12 +19,20 @@ fileformat_extension(int format) {
 }
 
 static int
-song_filename(Song *song, int format, char *buf, size_t len) {
+song_filename(Song *song, int format, char *buf, size_t buflen) {
     const char *extension = fileformat_extension(format);
 
-    /* TODO: account for when |extension| + |title| > len, use
-     * %.*ls + a size param to say how much of title to use */
-    if (snprintf(buf, len, "%ls.%s", song->title, extension) < 0) {
+    const size_t ext_len = strlen(extension) + 1;
+    const size_t title_len = wcslen(song->title);
+
+    const size_t max_title_len = MIN(title_len, buflen - ext_len);
+    const int use_len = (int) max_title_len;
+
+    if (use_len < 0) {
+        return -1;
+    }
+
+    if (snprintf(buf, buflen, "%.*ls.%s", use_len, song->title, extension) < 0) {
         return -1;
     }
 
