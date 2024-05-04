@@ -73,8 +73,9 @@ extract_song(SoundFile *src, Song *song, sf_count_t position,
         sf_count_t ending, double *songbuf, sf_count_t buflen) {
     const int format = src->info.format;
 
-    char filename[512] = {0};
     struct SoundFile dest = (SoundFile) { .info = src->info };
+
+    char filename[512] = {0};
 
     if (song_filename(song, format, filename, sizeof(filename)) < 0) {
         return -1;

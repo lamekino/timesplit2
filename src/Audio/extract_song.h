@@ -1,9 +1,5 @@
 #pragma once
 
-#ifdef AUDIO_HIDE_IMPL
-AUDIO_HIDE_IMPL
-#endif
-
 #include <sndfile.h>
 #include "Song/Song.h"
 #include "Audio/soundfile.h"

@@ -1,10 +1,5 @@
 #pragma once
 
-#ifdef SONG_HIDE_IMPL
-SONG_HIDE_IMPL
-#endif
-
-
 #include <time.h>
 #include <wchar.h>
 

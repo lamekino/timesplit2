@@ -1,9 +1,5 @@
 #pragma once
 
-#ifdef PARSER_HIDE_IMPL
-PARSER_HIDE_IMPL
-#endif
-
 #include <stdio.h>
 #include "Song/Song.h"
 
