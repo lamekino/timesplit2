@@ -1,10 +1,34 @@
 #pragma once
 
+/*
+ * NOTE: we maybe able to include the option to make the short flag or the long
+ * flag optional (but shouldn't be both)
+ *
+ * we add a:
+ * X(FLAG_NULL, NULL, '\0', NULL)
+ * to the top of the xmacro definition, so when code gets generated any lookup
+ * should resolve to the FLAG_NULL label
+ */
+
+/*
+ * TODO: swap short and long flag and format like
+ * X( \
+ *     label, \
+ *     desc, \
+ *     long, \
+ *     short, \
+ * )
+ */
 #define ARGUMENT_XMACRO(X) \
+X(FLAG_NULL, NULL, '\0', NULL) \
 X(FLAG_HELP, "view this help", \
     'h', "--help") \
 X(FLAG_EXTRACT_ALL, "extract all songs found", \
-     'a', "--all")
+     'a', "--all") \
+X(FLAG_EXTRACT_OUTPUT, "[TODO] set the directory for songs to be extracted to", \
+     'o', "--output") \
+X(FLAG_FILENAME, "[TODO] set the output filename", \
+     'o', "--output")
 
 typedef enum ArgumentXMacro {
 #define ENUMERATE(label, ...) label,

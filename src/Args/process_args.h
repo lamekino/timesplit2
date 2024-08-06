@@ -1,4 +1,6 @@
 #pragma once
 
+#include "Args/config.h"
+
 int
-process_args(int argc, char *argv[]);
+process_args(char *argv[], struct ArgConfig **config);
