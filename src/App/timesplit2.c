@@ -5,13 +5,13 @@
 #include "Args/Args.h"
 #include "Audio/Audio.h"
 #include "Parser/Parser.h"
+#include "Parser/parse_stream.h"
 #include "Song/Song.h"
 
 /* TODO: factor out fprintfs into a function which can switch over an enum of
  * AppErrors, call fucntion app_error(enum AppError type) */
 int
 timesplit2(int argc, char *argv[]) {
-    const char *filename = "./sample-input/MzCEqlPp0L8";
     const char *audiopath = "./sample-audio/MzCEqlPp0L8.opus";
     const char *localename = "en_US.UTF-8";
 
@@ -39,9 +39,24 @@ timesplit2(int argc, char *argv[]) {
         goto FAIL;
     }
 
-    if (parse_file(filename, &parsed) < 0) {
-        fprintf(stderr, "error in parsing\n");
-        goto FAIL;
+#if 0
+#define p(x) #x, ((x)? (x) : "unset")
+    {
+        printf("%-40s %s\n", p(config->extract_dir));
+        printf("%-40s %s\n", p(config->audio_path));
+        printf("%-40s %s\n", p(config->timestamps_path));
+        goto SUCCESS;
+    }
+#endif
+
+    if (parse_file(config->timestamps_path, &parsed) < 0) {
+        if (config->timestamps_path != NULL) {
+            fprintf(stderr, "error in parsing\n");
+            goto FAIL;
+        }
+
+        fprintf(stderr, "No timestamp file provided, paste them here:\n");
+        parse_stream(stdin, &parsed);
     }
 
     if (audio_interact(audiopath, &parsed) < 0) {
