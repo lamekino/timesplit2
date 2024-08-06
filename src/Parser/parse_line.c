@@ -12,7 +12,7 @@ parse_line_finish(const wchar_t *line_buf, const wchar_t *cursor, size_t delta) 
     wchar_t *title = malloc(sizeof(wchar_t) * (span + 1));
 
     if (!title) {
-        return PARSE_ERROR;
+        return PARSER_ERROR;
     }
 
     memcpy(title, cursor, sizeof(wchar_t) * span);
@@ -30,7 +30,7 @@ parse_line_helper(const wchar_t *line_buf, const wchar_t *cursor,
     const size_t delta = cursor - line_buf;
 
     if (delta >= max_len) {
-        return PARSE_ERROR;
+        return PARSER_ERROR;
     }
 
     /* WARN: idk what will happen if ' ' is the final char */
@@ -52,7 +52,13 @@ parse_line_helper(const wchar_t *line_buf, const wchar_t *cursor,
 }
 
 struct Song
-parse_line(const wchar_t *line_buf, size_t max_len) {
-    return parse_line_helper(line_buf, line_buf, max_len);
+parse_line(const wchar_t *linebuf, size_t max_len) {
+    while (*linebuf == L' ' || *linebuf == L'\t') {
+        linebuf++;
+    }
+
+    if (*linebuf == L'\n') return PARSER_SKIP;
+
+    return parse_line_helper(linebuf, linebuf, max_len);
 }
 

@@ -8,25 +8,19 @@
 
 int
 parse_stream(FILE *stream, struct SongList *dest) {
-    int lineno = 1;
+    int lineno;
     wchar_t linebuf[BUFFER_SIZE] = {0};
 
-    while ((fgetws(linebuf, BUFFER_SIZE, stream))) {
-        struct Song song;
+    for (lineno = 0; fgetws(linebuf, BUFFER_SIZE, stream); lineno++) {
+        struct Song song = parse_line(linebuf, BUFFER_SIZE);
 
-        if (wcsncmp(linebuf, L"\n", BUFFER_SIZE) == 0) continue;
-
-        song = parse_line(linebuf, BUFFER_SIZE);
-
-        if (IS_PARSE_ERROR(song)) {
-            return -1;
+        if (IS_PARSER_SKIP(song)) {
+            continue;
         }
 
-        if (!songlist_push(dest, &song)) {
+        if (IS_PARSER_ERROR(song) || !songlist_push(dest, &song)) {
             return -1;
         }
-
-        lineno++;
     }
 
     return lineno;
