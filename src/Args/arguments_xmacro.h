@@ -20,15 +20,14 @@
  * )
  */
 #define ARGUMENT_XMACRO(X) \
-X(FLAG_NULL, NULL, '\0', NULL) \
 X(FLAG_HELP, "view this help", \
     'h', "--help") \
 X(FLAG_EXTRACT_ALL, "extract all songs found", \
      'a', "--all") \
 X(FLAG_EXTRACT_OUTPUT, "[TODO] set the directory for songs to be extracted to", \
      'o', "--output") \
-X(FLAG_FILENAME, "[TODO] set the output filename", \
-     'o', "--output")
+X(FLAG_TIMESTAMPS_FILE, "[TODO] use a file to read timestamps instead of stdin", \
+     'f', "--timestamps")
 
 typedef enum ArgumentXMacro {
 #define ENUMERATE(label, ...) label,
