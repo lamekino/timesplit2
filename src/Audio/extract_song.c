@@ -1,7 +1,7 @@
 #include <string.h>
 #include <sndfile.h>
 
-#include "Song/Song.h"
+#include "Song/song_type.h"
 #include "Audio/soundfile.h"
 #include "Audio/extract_song.h"
 

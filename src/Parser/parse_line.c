@@ -2,7 +2,7 @@
 #include <string.h>
 #include <wchar.h>
 
-#include "Song/Song.h"
+#include "Song/song_type.h"
 #include "Parser/parse_stream.h"
 #include "Parser/parse_timestamp.h"
 
@@ -57,7 +57,9 @@ parse_line(const wchar_t *linebuf, size_t max_len) {
         linebuf++;
     }
 
-    if (*linebuf == L'\n') return PARSER_SKIP;
+    if (*linebuf == L'\n') {
+        return PARSER_SKIP;
+    }
 
     return parse_line_helper(linebuf, linebuf, max_len);
 }

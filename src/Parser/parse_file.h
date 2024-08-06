@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Song/Song.h"
+#include "Song/stack.h"
 
 int
 parse_file(const char *filepath, struct SongList *dest);

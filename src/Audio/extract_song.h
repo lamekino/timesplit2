@@ -1,7 +1,7 @@
 #pragma once
 
 #include <sndfile.h>
-#include "Song/Song.h"
+#include "Song/song_type.h"
 #include "Audio/soundfile.h"
 
 int

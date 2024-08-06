@@ -6,7 +6,8 @@
 #include <stdarg.h>
 
 
-#include "Song/Song.h"
+#include "Song/song_type.h"
+#include "Song/stack.h"
 #include "Audio/extract_song.h"
 #include "Audio/soundfile.h"
 
