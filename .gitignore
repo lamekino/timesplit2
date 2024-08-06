@@ -6,6 +6,7 @@ compile_commands.json
 
 # large sample files
 *.mp3
+*.oga
 *.m1a
 
 # clangd junk
