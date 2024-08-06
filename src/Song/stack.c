@@ -13,7 +13,7 @@ songlist_stack_create(struct SongList *stk) {
     struct SongList created =
         (struct SongList) {
             .capacity = INITIAL_STACK_CAPACITY,
-            .elems = calloc(sizeof(stack_elem_t), INITIAL_STACK_CAPACITY),
+            .elems = calloc(INITIAL_STACK_CAPACITY, sizeof(stack_elem_t)),
         };
 
     if (!created.elems) {
