@@ -9,9 +9,9 @@
 #endif
 
 stack_elem_t *
-songlist_stack_create(struct SongList *stk) {
-    struct SongList created =
-        (struct SongList) {
+stack_create(struct Stack *stk) {
+    struct Stack created =
+        (struct Stack) {
             .capacity = INITIAL_STACK_CAPACITY,
             .elems = calloc(INITIAL_STACK_CAPACITY, sizeof(stack_elem_t)),
         };
@@ -48,7 +48,7 @@ prepush(void *p, size_t *length, size_t *capacity, size_t elem_size) {
 }
 
 stack_elem_t *
-songlist_push_item(struct SongList *stk, const stack_elem_t item_ptr,
+stack_push_item(struct Stack *stk, const stack_elem_t item_ptr,
         size_t item_size) {
     stack_elem_t dup = malloc(item_size);
 
@@ -68,7 +68,7 @@ songlist_push_item(struct SongList *stk, const stack_elem_t item_ptr,
 }
 
 stack_elem_t
-songlist_pop(struct SongList *stk) {
+stack_pop(struct Stack *stk) {
     if (stk->count == 0) {
         return NULL;
     }
@@ -78,12 +78,12 @@ songlist_pop(struct SongList *stk) {
 }
 
 stack_elem_t
-songlist_mod_index(const struct SongList *stk, size_t idx) {
+stack_mod_index(const struct Stack *stk, size_t idx) {
     return stk->elems[idx % stk->count];
 }
 
 void
-songlist_cleanup(struct SongList *stk, CloseCallback free_elem) {
+stack_cleanup(struct Stack *stk, CloseCallback free_elem) {
     while (stk->count > 0 && stk->count--) {
         free_elem(stk->elems[stk->count]);
     }

@@ -3,11 +3,12 @@
 #include "Parser/parse_line.h"
 #include "Parser/parse_stream.h"
 #include "Song/song_type.h"
+#include "Song/stack.h"
 
 #define BUFFER_SIZE 1024
 
 int
-parse_stream(FILE *stream, struct SongList *dest) {
+parse_stream(FILE *stream, struct Stack *dest) {
     int lineno;
     wchar_t linebuf[BUFFER_SIZE] = {0};
 
@@ -18,7 +19,7 @@ parse_stream(FILE *stream, struct SongList *dest) {
             continue;
         }
 
-        if (IS_PARSER_ERROR(song) || !songlist_push(dest, &song)) {
+        if (IS_PARSER_ERROR(song) || !stack_push(dest, &song)) {
             return -1;
         }
     }

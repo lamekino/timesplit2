@@ -19,12 +19,12 @@ main(int argc, char *argv[]) {
     struct ArgConfig config_params = {0};
     struct ArgConfig *config = &config_params;
 
-    struct SongList parsed = {0};
+    struct Stack parsed = {0};
 
     /*
      * initialize song list
      */
-    if (!songlist_stack_create(&parsed)) {
+    if (!stack_create(&parsed)) {
         fprintf(stderr, "could not create data stack\n");
         goto FAIL;
     }
@@ -74,9 +74,9 @@ main(int argc, char *argv[]) {
      * finish
      */
 SUCCESS:
-    songlist_cleanup(&parsed, free_song);
+    stack_cleanup(&parsed, free_song);
     return EXIT_SUCCESS;
 FAIL:
-    songlist_cleanup(&parsed, free_song);
+    stack_cleanup(&parsed, free_song);
     return EXIT_FAILURE;
 }

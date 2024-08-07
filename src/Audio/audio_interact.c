@@ -16,7 +16,7 @@
 
 #define LENGTH(xs) (sizeof(xs)/sizeof((xs)[0]))
 
-typedef const struct SongList Timestamps;
+typedef const struct Stack Timestamps;
 
 union UserIndex {
     int got;
@@ -94,8 +94,8 @@ song_interact(SoundFile *src, Timestamps *ts, size_t idx,
         double *songbuf, sf_count_t buflen) {
     const int rate = src->info.samplerate;
 
-    Song *cur = songlist_mod_index(ts, idx);
-    Song *next = songlist_mod_index(ts, idx + 1);
+    Song *cur = stack_mod_index(ts, idx);
+    Song *next = stack_mod_index(ts, idx + 1);
 
     const sf_count_t start = song_frame_offset(cur, rate);
     const sf_count_t finish = song_frame_offset(next, rate);

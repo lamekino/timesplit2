@@ -10,7 +10,7 @@ typedef STACK_ELEM_T stack_elem_t;
 
 typedef void (CloseCallback)(void *);
 
-struct SongList {
+struct Stack {
     stack_elem_t *elems;
     size_t count;
     size_t capacity;
@@ -18,25 +18,20 @@ struct SongList {
 
 
 stack_elem_t *
-songlist_stack_create(struct SongList *stk);
+stack_create(struct Stack *stk);
 
 stack_elem_t *
-songlist_push_item(struct SongList *stk, const stack_elem_t item_ptr,
+stack_push_item(struct Stack *stk, const stack_elem_t item_ptr,
         size_t item_size);
 
-#ifndef USE_MEMCPY
-#define songlist_push(stk, item_ptr) \
-    songlist_push_item((stk), (item_ptr), sizeof(*stk->elems[0]))
-#else
-#define songlist_push(stk, item_ptr, item_size) \
-    songlist_push_item((stk), (item_ptr), (item_size))
-#endif
+#define stack_push(stk, item_ptr) \
+    stack_push_item((stk), (item_ptr), sizeof(*stk->elems[0]))
 
 stack_elem_t
-songlist_pop(struct SongList *stk);
+stack_pop(struct Stack *stk);
 
 stack_elem_t
-songlist_mod_index(const struct SongList *stk, size_t idx);
+stack_mod_index(const struct Stack *stk, size_t idx);
 
 void
-songlist_cleanup(struct SongList *stk, CloseCallback free_elem);
+stack_cleanup(struct Stack *stk, CloseCallback free_elem);

@@ -3,4 +3,4 @@
 #include "Song/stack.h"
 
 int
-parse_file(const char *filepath, struct SongList *dest);
+parse_file(const char *filepath, struct Stack *dest);

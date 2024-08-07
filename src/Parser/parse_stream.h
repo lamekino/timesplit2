@@ -18,4 +18,4 @@ enum ParserState {
 #define IS_PARSER_SKIP(song) ((song).timestamp == STATE_SKIP)
 
 int
-parse_stream(FILE *stream, struct SongList *dest);
+parse_stream(FILE *stream, struct Stack *dest);
