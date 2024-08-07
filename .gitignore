@@ -5,6 +5,7 @@ timesplit2
 compile_commands.json
 
 # large sample files
+sample-audio/*
 *.mp3
 *.oga
 *.m1a
