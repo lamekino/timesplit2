@@ -1,29 +1,37 @@
+#include <stdio.h>
 #include <wchar.h>
-#include <time.h>
+#include <wctype.h>
 
 #include "Parser/parse_timestamp.h"
 
-#define LENGTH(xs) (sizeof((xs))/sizeof((xs)[0]))
 #define WCDIGIT(wc) ((wc) - L'0')
 
 #define HOUR_SECOND(h) (3600 * (h))
 #define MIN_SECOND(m) (60 * (m))
 
-#define TS_FIELDS 3
+#define SEP L':'
+
+typedef int TimestampField;
 
 union Timestamp {
     struct {
-        int hour;
-        int min;
-        int sec;
+        TimestampField hour;
+        TimestampField min;
+        TimestampField sec;
     };
 
-    int items[TS_FIELDS];
+    TimestampField fields[3];
 };
 
-static int
-parse_ts_digit(wchar_t digit, int value, int layer, int digitnum) {
-    if (layer != 0 && digitnum >= 2) {
+#define TS_FIELDS (sizeof(union Timestamp) / sizeof(TimestampField))
+
+static TimestampField
+parse_digit(wchar_t digit, TimestampField value, int valuelen, int fieldnum) {
+    if (fieldnum != 0 && valuelen >= 2) {
+        return -1;
+    }
+
+    if (!iswdigit(digit)) {
         return -1;
     }
 
@@ -32,88 +40,86 @@ parse_ts_digit(wchar_t digit, int value, int layer, int digitnum) {
 
 
 static int
-parse_ts_helper(const wchar_t *line, size_t len, size_t pos,
-        const int *base, int *cur, size_t digitnum) {
-    const size_t fieldnum = cur - base;
+parse_helper(const wchar_t *line, size_t linelen, size_t linepos,
+        const TimestampField *basefield, TimestampField *curfield,
+        size_t numdigits) {
+    const size_t fieldpos = curfield - basefield;
 
-    if (pos >= len) {
+    if (linepos >= linelen) {
         return 0;
     }
 
-    if (fieldnum >= TS_FIELDS) {
+    if (fieldpos >= TS_FIELDS) {
         return -1;
     }
 
-    switch (line[pos]) {
-    case L'1':
-    case L'2':
-    case L'3':
-    case L'4':
-    case L'5':
-    case L'6':
-    case L'7':
-    case L'8':
-    case L'9':
-    case L'0':
-        *cur = parse_ts_digit(line[pos], *cur, fieldnum, digitnum);
-        if (*cur < 0) break;
-
-        digitnum += 1;
-        pos +=1;
-
-        return parse_ts_helper(line, len, pos, base, cur, digitnum);
-    case L':':
-        digitnum = 0;
-        pos += 1;
-        cur += 1;
-
-        return parse_ts_helper(line, len, pos, base, cur, digitnum);
+    /* and if this where a map of lambdas they'd call it modern! */
+    switch (line[linepos]) {
+    case L'1': case L'2': case L'3': case L'4': case L'5':
+    case L'6': case L'7': case L'8': case L'9': case L'0':
+        goto CLOSURE_DIGIT;
+    case SEP:
+        goto CLOSURE_SEP;
     default:
         break;
     }
 
     return -1;
+
+CLOSURE_DIGIT: {
+    int nextvalue =
+        parse_digit(line[linepos], *curfield, numdigits, fieldpos);
+
+    if (nextvalue < 0) {
+        return -1;
+    }
+
+    *curfield = nextvalue;
+    linepos += 1;
+    numdigits += 1;
+
+    return parse_helper(line, linelen, linepos, basefield, curfield, numdigits);
 }
 
-static int
-character_count(wchar_t ch, const wchar_t *ws, size_t len) {
+CLOSURE_SEP: {
+    curfield += 1;
+    linepos += 1;
+    numdigits = 0;
+
+    return parse_helper(line, linelen, linepos, basefield, curfield, numdigits);
+}
+
+}
+
+static size_t
+parse_ts_field_num(const wchar_t *line, size_t len) {
     size_t i;
-    int count = 0;
+    size_t fieldno = TS_FIELDS;
 
     for (i = 0; i < len; i++) {
-        if (ws[i] == ch) count++;
+        if (line[i] == SEP) {
+            fieldno--;
+        }
     }
 
-    return count;
-}
-
-static int
-parse_ts_init_layer(const wchar_t *line, size_t len) {
-    int count = character_count(L':', line, len);
-
-    switch (count) {
-    case 2:
-        return 0;
-    case 1:
-        return 1;
-    default:
-        break;
+    if (!(1 <= fieldno && fieldno <= TS_FIELDS - 1)) {
+        return -1;
     }
 
-    return -1;
+    return fieldno;
 }
 
 time_t
 parse_timestamp(const wchar_t *line, size_t len) {
-    int layer;
+    int fieldno;
     union Timestamp ts = {0};
 
-    layer = parse_ts_init_layer(line, len);
-    if (layer < 0) {
+    fieldno = parse_ts_field_num(line, len);
+    if (fieldno < 0) {
         return -1;
     }
 
-    if (parse_ts_helper(line, len, 0, ts.items, &ts.items[layer], 0) < 0) {
+    if (parse_helper(line, len, 0, ts.fields, &ts.fields[fieldno], 0) < 0) {
         return -1;
     }
 
