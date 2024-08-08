@@ -11,23 +11,29 @@
 
 #define SEP L':'
 
-typedef int TimestampField;
+typedef int TimestampValue;
+
+enum TimestampField {
+    TS_HOUR,
+    TS_MIN,
+    TS_SEC,
+
+    FIELD_COUNT
+};
 
 union Timestamp {
     struct {
-        TimestampField hour;
-        TimestampField min;
-        TimestampField sec;
+        TimestampValue hour;
+        TimestampValue min;
+        TimestampValue sec;
     };
 
-    TimestampField fields[3];
+    TimestampValue fields[FIELD_COUNT];
 };
 
-#define TS_FIELDS (sizeof(union Timestamp) / sizeof(TimestampField))
-
-static TimestampField
-parse_digit(wchar_t digit, TimestampField value, int valuelen, int fieldno) {
-    if (fieldno != 0 && valuelen >= 2) {
+static TimestampValue
+parse_digit(wchar_t digit, TimestampValue value, int valuelen, int fieldno) {
+    if (fieldno != TS_HOUR && valuelen >= 2) {
         return -1;
     }
 
@@ -41,14 +47,14 @@ parse_digit(wchar_t digit, TimestampField value, int valuelen, int fieldno) {
 
 static int
 parse_helper(const wchar_t *line, size_t linelen, size_t linepos,
-        const TimestampField *basefield, TimestampField *curfield,
+        const TimestampValue *basefield, TimestampValue *curfield,
         size_t numdigits) {
     const size_t pos = linepos;
     const size_t len = linelen;
 
     const size_t fieldpos = curfield - basefield;
 
-    if (linepos >= len || fieldpos >= TS_FIELDS) {
+    if (linepos >= len || fieldpos >= FIELD_COUNT) {
         return 0;
     }
 
@@ -78,7 +84,7 @@ parse_helper(const wchar_t *line, size_t linelen, size_t linepos,
 
 static size_t
 parse_ts_field_num(const wchar_t *line, size_t len) {
-    const size_t MAX_SEPS = TS_FIELDS - 1;
+    const size_t MAX_SEPS = FIELD_COUNT - 1;
 
     size_t i;
     size_t sepcount = 0;
