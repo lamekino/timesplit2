@@ -45,12 +45,8 @@ parse_helper(const wchar_t *line, size_t linelen, size_t linepos,
         size_t numdigits) {
     const size_t fieldpos = curfield - basefield;
 
-    if (linepos >= linelen) {
+    if (linepos >= linelen || fieldpos >= TS_FIELDS) {
         return 0;
-    }
-
-    if (fieldpos >= TS_FIELDS) {
-        return -1;
     }
 
     /* and if this where a map of lambdas they'd call it modern! */
@@ -93,20 +89,22 @@ CLOSURE_SEP: {
 
 static size_t
 parse_ts_field_num(const wchar_t *line, size_t len) {
+    const size_t MAX_SEPS = TS_FIELDS - 1;
+
     size_t i;
-    size_t fieldno = TS_FIELDS;
+    size_t sep_count = 0;
 
     for (i = 0; i < len; i++) {
         if (line[i] == SEP) {
-            fieldno--;
+            sep_count++;
         }
     }
 
-    if (!(1 <= fieldno && fieldno <= TS_FIELDS - 1)) {
+    if (!(1 <= sep_count && sep_count <= MAX_SEPS)) {
         return -1;
     }
 
-    return fieldno;
+    return MAX_SEPS - sep_count;
 }
 
 time_t
