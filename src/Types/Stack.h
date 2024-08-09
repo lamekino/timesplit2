@@ -1,12 +1,15 @@
 #pragma once
 
 #include <stddef.h>
-#include "Song/song_type.h"
 
 #define INITIAL_STACK_CAPACITY 61u
-#define STACK_ELEM_T struct Song *
 
-typedef STACK_ELEM_T stack_elem_t;
+#ifndef STACK_T
+#include "Types/Song.h"
+#define STACK_T struct Song *
+#endif
+
+typedef STACK_T stack_elem_t;
 
 typedef void (CloseCallback)(void *);
 
@@ -15,7 +18,6 @@ struct Stack {
     size_t count;
     size_t capacity;
 };
-
 
 stack_elem_t *
 stack_create(struct Stack *stk);

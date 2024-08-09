@@ -2,8 +2,8 @@
 
 #include "Parser/parse_line.h"
 #include "Parser/parse_stream.h"
-#include "Song/song_type.h"
-#include "Song/stack.h"
+#include "Types/Song.h"
+#include "Types/Stack.h"
 
 #define BUFFER_SIZE 1024
 

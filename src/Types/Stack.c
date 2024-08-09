@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "Song/stack.h"
+#include "Types/Stack.h"
 
 #if USE_MEMCPY
 #define STACKCPY(dest, src, elem_size) memcpy(dest, src, elem_size)

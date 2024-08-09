@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 #include <limits.h>
-#include "Song/stack.h"
+#include "Types/Stack.h"
 
 enum ParserState {
     __ParserState_start = INT_MIN,

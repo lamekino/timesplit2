@@ -7,7 +7,7 @@
 #include "Audio/audio_interact.h"
 #include "Parser/parse_file.h"
 #include "Parser/parse_stream.h"
-#include "Song/stack.h"
+#include "Types/Song.h"
 
 /* TODO: factor out fprintfs into a function which can switch over an enum of
  * AppErrors, call fucntion app_error(enum AppError type) */
