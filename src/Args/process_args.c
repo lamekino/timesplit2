@@ -1,8 +1,8 @@
 #include <string.h>
 
 #include "Args/process_args.h"
-#include "Args/arguments_xmacro.h"
-#include "Args/config.h"
+#include "Args/ArgsXMacro.h"
+#include "Args/ArgsConfig.h"
 #include "Args/usage.h"
 
 #include "Debug/assert.h"
@@ -12,14 +12,14 @@ struct ShortFlag {
 };
 
 static struct ShortFlag
-get_short_flag_string(ArgumentXMacro xm) {
+get_short_flag_string(ArgsXMacro xm) {
     return (struct ShortFlag) {
         { '-', get_short_flag(xm), '\0' }
     };
 }
 
 static bool
-is_flag(ArgumentXMacro xm, const char *arg, size_t arg_len) {
+is_flag(ArgsXMacro xm, const char *arg, size_t arg_len) {
     struct ShortFlag sf = get_short_flag_string(xm);
 
     const char *short_flag = &sf.flag[0];
@@ -36,7 +36,7 @@ is_flag(ArgumentXMacro xm, const char *arg, size_t arg_len) {
 /* TODO: set_flag.c with all the setter functions (set help, set_extract_all,
  * etc) */
 static int
-set_flag(ArgumentXMacro flag, struct ArgConfig *config) {
+set_flag(ArgsXMacro flag, struct ArgsConfig *config) {
     DEBUG_ASSERT(config, "Null config in set_flag");
 
     int pending_args = 0;
@@ -78,8 +78,8 @@ set_next_arg(char **cur_arg, char **field) {
 }
 
 static int
-set_flag_args(char **cur_arg[], int pending_args, ArgumentXMacro flag,
-        struct ArgConfig *config) {
+set_flag_args(char **cur_arg[], int pending_args, ArgsXMacro flag,
+        struct ArgsConfig *config) {
     DEBUG_ASSERT(cur_arg, "next_arg: cur_arg null");
     DEBUG_ASSERT(*cur_arg, "next_arg: cur_arg null");
     DEBUG_ASSERT(**cur_arg, "next_arg: **cur_arg null");
@@ -123,9 +123,9 @@ FINISH:
     return seek;
 }
 
-static ArgumentXMacro
+static ArgsXMacro
 resolve_argument_flag(const char *arg) {
-    ArgumentXMacro xm;
+    ArgsXMacro xm;
 
     const size_t arglen = strlen(arg);
 
@@ -145,7 +145,7 @@ resolve_argument_flag(const char *arg) {
 }
 
 static void
-show_missing_args_error(const char *progname, ArgumentXMacro flag) {
+show_missing_args_error(const char *progname, ArgsXMacro flag) {
     const char short_flag = get_short_flag(flag);
     const char *long_flag = get_long_flag(flag);
 
@@ -165,20 +165,20 @@ show_unknown_error(const char *progname, const char *unknown) {
 }
 
 static void
-set_help_flag(const char *progname, struct ArgConfig **cfg) {
+set_help_flag(const char *progname, struct ArgsConfig **cfg) {
     *cfg = NULL;
     usage(stdout, progname);
 }
 
 int
-process_args(char *argv[], struct ArgConfig **cfg) {
-    struct ArgConfig *config = *cfg;
+process_args(char *argv[], struct ArgsConfig **cfg) {
+    struct ArgsConfig *config = *cfg;
 
     const char *progname = argv[0];
 
     char **argp = &argv[1];
 
-    ArgumentXMacro flag = -1;
+    ArgsXMacro flag = -1;
     int pending_args = -1;
 
     while (*argp) {

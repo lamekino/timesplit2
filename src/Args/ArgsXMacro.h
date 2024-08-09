@@ -29,7 +29,7 @@ X(FLAG_EXTRACT_OUTPUT, "[TODO] set the directory for songs to be extracted to", 
 X(FLAG_TIMESTAMPS_FILE, "[TODO] use a file to read timestamps instead of stdin", \
      'f', "--timestamps")
 
-typedef enum ArgumentXMacro {
+typedef enum {
     /* WARN: this is actually required to make GCC not treat this as signed */
     __gib_sign = -1,
 
@@ -38,14 +38,14 @@ typedef enum ArgumentXMacro {
 #undef ENUMERATE
 
     ARGUMENT_XMACRO_COUNT
-} ArgumentXMacro;
+} ArgsXMacro;
 
 char
-get_short_flag(ArgumentXMacro xm);
+get_short_flag(ArgsXMacro xm);
 
 
 const char *
-get_long_flag(ArgumentXMacro xm);
+get_long_flag(ArgsXMacro xm);
 
 const char *
-get_description(ArgumentXMacro xm);
+get_description(ArgsXMacro xm);

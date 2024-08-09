@@ -2,7 +2,7 @@
 
 #include <stdbool.h>
 
-struct ArgConfig {
+struct ArgsConfig {
     bool use_extract_all;
 
     char *audio_path;

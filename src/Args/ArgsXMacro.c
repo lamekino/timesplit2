@@ -1,9 +1,9 @@
-#include "Args/arguments_xmacro.h"
+#include "Args/ArgsXMacro.h"
 
 #include "Debug/assert.h"
 
 char
-get_short_flag(ArgumentXMacro xm) {
+get_short_flag(ArgsXMacro xm) {
     static const char short_flags[] = {
 #define YS(label, _1, short, ...) [label] = short,
         ARGUMENT_XMACRO(YS)
@@ -17,7 +17,7 @@ get_short_flag(ArgumentXMacro xm) {
 }
 
 const char *
-get_long_flag(ArgumentXMacro xm) {
+get_long_flag(ArgsXMacro xm) {
     static const char *long_flags[] = {
 #define YS(label, _1, _2, long, ...) [label] = long,
         ARGUMENT_XMACRO(YS)
@@ -31,7 +31,7 @@ get_long_flag(ArgumentXMacro xm) {
 }
 
 const char *
-get_description(ArgumentXMacro xm) {
+get_description(ArgsXMacro xm) {
     static const char *descriptions[] = {
 #define YS(label, desc, ...) [label] = desc,
         ARGUMENT_XMACRO(YS)

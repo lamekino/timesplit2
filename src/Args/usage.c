@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "Args/arguments_xmacro.h"
+#include "Args/ArgsXMacro.h"
 #include "Args/usage.h"
 
 #define PADDING_LONG 16
@@ -8,7 +8,7 @@
 
 static void
 print_usage_header(FILE *stream, const char *progname) {
-    ArgumentXMacro xm;
+    ArgsXMacro xm;
 
     fprintf(stream, "usage:\n");
     fprintf(stream, "%s [", progname);
@@ -19,12 +19,12 @@ print_usage_header(FILE *stream, const char *progname) {
         fprintf(stream, "-%c", get_short_flag(xm));
     }
 
-    fprintf(stream, "] audiopath");
+    fprintf(stream, "] audiopath\n");
 }
 
 static void
 print_usage_descriptions(FILE *stream) {
-    ArgumentXMacro xm;
+    ArgsXMacro xm;
 
     for (xm = 0; xm < ARGUMENT_XMACRO_COUNT; xm++) {
         fprintf(stream, "    -%-*c %-*s %s\n",

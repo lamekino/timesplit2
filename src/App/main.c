@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <locale.h>
 
-#include "Args/config.h"
+#include "Args/ArgsConfig.h"
 #include "Args/process_args.h"
 #include "Audio/audio_interact.h"
 #include "Parser/parse_file.h"
@@ -15,8 +15,8 @@ int
 main(int argc, char *argv[]) {
     const char *localename = "en_US.UTF-8";
 
-    struct ArgConfig config_params = {0};
-    struct ArgConfig *config = &config_params;
+    struct ArgsConfig config_params = {0};
+    struct ArgsConfig *config = &config_params;
 
     struct Stack parsed = {0};
 
