@@ -19,7 +19,7 @@ print_usage_header(FILE *stream, const char *progname) {
         fprintf(stream, "-%c", get_short_flag(xm));
     }
 
-    fprintf(stream, "] filename1 filename2 ...\n");
+    fprintf(stream, "] audiopath");
 }
 
 static void

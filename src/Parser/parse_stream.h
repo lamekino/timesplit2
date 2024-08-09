@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <limits.h>
+
 #include "Types/Stack.h"
 
 enum ParserState {

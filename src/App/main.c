@@ -13,7 +13,6 @@
  * AppErrors, call fucntion app_error(enum AppError type) */
 int
 main(int argc, char *argv[]) {
-    const char *audiopath = "./sample-audio/MzCEqlPp0L8.opus";
     const char *localename = "en_US.UTF-8";
 
     struct ArgConfig config_params = {0};
@@ -49,6 +48,11 @@ main(int argc, char *argv[]) {
         goto FAIL;
     }
 
+    if (config->audio_path == NULL) {
+        fprintf(stderr, "no audio file provided\n");
+        goto FAIL;
+    }
+
     /*
      * parse timestamps
      */
@@ -65,7 +69,7 @@ main(int argc, char *argv[]) {
     /*
      * interact with audio file
      */
-    if (audio_interact(audiopath, &parsed) < 0) {
+    if (audio_interact(config->audio_path, &parsed) < 0) {
         fprintf(stderr, "error in audio?? bad error\n");
         goto FAIL;
     }

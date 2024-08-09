@@ -67,8 +67,6 @@ set_flag(ArgumentXMacro flag, struct ArgConfig *config) {
 
 static int
 set_next_arg(char **cur_arg, char **field) {
-    (void) field;
-
     char *next_arg = *(cur_arg + 1);
 
     if (next_arg == NULL) {
@@ -174,6 +172,8 @@ set_help_flag(const char *progname, struct ArgConfig **cfg) {
 
 int
 process_args(char *argv[], struct ArgConfig **cfg) {
+    struct ArgConfig *config = *cfg;
+
     const char *progname = argv[0];
 
     char **argp = &argv[1];
@@ -182,12 +182,18 @@ process_args(char *argv[], struct ArgConfig **cfg) {
     int pending_args = -1;
 
     while (*argp) {
-        const char *cur = *argp;
+        char *cur = *argp;
 
         flag = resolve_argument_flag(cur);
         if (flag < 0) {
-            show_unknown_error(progname, cur);
-            return -1;
+            if (config->audio_path != NULL) {
+                show_unknown_error(progname, cur);
+                return -1;
+            }
+
+            config->audio_path = cur;
+            argp++;
+            continue;
         }
 
         pending_args = set_flag(flag, *cfg);

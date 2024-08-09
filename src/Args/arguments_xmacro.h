@@ -30,6 +30,9 @@ X(FLAG_TIMESTAMPS_FILE, "[TODO] use a file to read timestamps instead of stdin",
      'f', "--timestamps")
 
 typedef enum ArgumentXMacro {
+    /* WARN: this is actually required to make GCC not treat this as signed */
+    __gib_sign = -1,
+
 #define ENUMERATE(label, ...) label,
     ARGUMENT_XMACRO(ENUMERATE)
 #undef ENUMERATE
