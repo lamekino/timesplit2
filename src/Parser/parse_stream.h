@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <limits.h>
 
+#include "Types/Error.h"
 #include "Types/Stack.h"
 
 enum ParserState {
@@ -18,5 +19,5 @@ enum ParserState {
 #define IS_PARSER_ERROR(song) ((song).timestamp == STATE_ERROR)
 #define IS_PARSER_SKIP(song) ((song).timestamp == STATE_SKIP)
 
-int
+union Error
 parse_stream(FILE *stream, struct Stack *dest);

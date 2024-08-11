@@ -9,8 +9,6 @@
 #define HOUR_SECOND(h) (3600 * (h))
 #define MIN_SECOND(m) (60 * (m))
 
-#define SEP L':'
-
 typedef int TimestampValue;
 
 enum TimestampField {
@@ -71,7 +69,7 @@ parse_helper(const wchar_t *line, size_t linelen, size_t linepos,
         return parse_helper(line, len, linepos, basefield, curfield, numdigits);
     }
 
-    if (line[linepos] == SEP) {
+    if (line[linepos] == TS_SEP) {
         numdigits = 0;
         linepos += 1;
         curfield += 1;
@@ -90,7 +88,7 @@ parse_ts_field_num(const wchar_t *line, size_t len) {
     size_t sepcount = 0;
 
     for (i = 0; i < len; i++) {
-        if (line[i] == SEP) {
+        if (line[i] == TS_SEP) {
             sepcount++;
         }
     }

@@ -6,6 +6,7 @@
 #include "Args/usage.h"
 
 #include "Debug/assert.h"
+#include "Types/Error.h"
 
 struct ShortFlag {
     char flag[3];
@@ -145,32 +146,12 @@ resolve_argument_flag(const char *arg) {
 }
 
 static void
-show_missing_args_error(const char *progname, ArgsXMacro flag) {
-    const char short_flag = get_short_flag(flag);
-    const char *long_flag = get_long_flag(flag);
-
-    fprintf(stderr, "Missing argument for: '-%c/%s'\n\n",
-            short_flag, long_flag);
-
-    /* TODO: encode # of arguments + argument type, ie:
-     * <file1> <file2> ... <fileN> */
-    fprintf(stderr, "Usage: %s [-%c|%s] ...",
-            progname, short_flag, long_flag);
-}
-
-static void
-show_unknown_error(const char *progname, const char *unknown) {
-    fprintf(stderr, "Unknown flag: '%s'\n", unknown);
-    usage(stderr, progname);
-}
-
-static void
 set_help_flag(const char *progname, struct ArgsConfig **cfg) {
     *cfg = NULL;
     usage(stdout, progname);
 }
 
-int
+union Error
 process_args(char *argv[], struct ArgsConfig **cfg) {
     struct ArgsConfig *config = *cfg;
 
@@ -185,12 +166,11 @@ process_args(char *argv[], struct ArgsConfig **cfg) {
         char *cur = *argp;
 
         flag = resolve_argument_flag(cur);
-        if (flag < 0) {
-            if (config->audio_path != NULL) {
-                show_unknown_error(progname, cur);
-                return -1;
-            }
+        if (flag < 0 && config->audio_path != NULL) {
+            return error_msg("Unknown flag: '%s'\n", cur);
+        }
 
+        if (flag < 0) {
             config->audio_path = cur;
             argp++;
             continue;
@@ -198,26 +178,23 @@ process_args(char *argv[], struct ArgsConfig **cfg) {
 
         pending_args = set_flag(flag, *cfg);
         if (pending_args < 0) {
-            fprintf(stderr, "Error in processing flag: '%s'", cur);
-            return -1;
+            return error_msg("Error in processing flag: '%s'", cur);
         }
 
         pending_args -= set_flag_args(&argp, pending_args, flag, *cfg);
         if (pending_args > 0) {
-            show_missing_args_error(progname, flag);
-            return -1;
+            return error_msg("Missing argument for: '%s'", cur);
         }
     }
 
     if (pending_args > 0) {
-        show_missing_args_error(progname, flag);
-        return -1;
+        return error_msg("Missing argument for: '%s'", argp[-1]);
     }
 
     if (flag == FLAG_HELP) {
         set_help_flag(progname, cfg);
-        return -1;
+        return error_level(LEVEL_FAILED);
     }
 
-    return 0;
+    return error_level(LEVEL_SUCCESS);
 }

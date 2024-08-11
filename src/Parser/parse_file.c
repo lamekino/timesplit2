@@ -1,18 +1,30 @@
 #include <stdio.h>
 
+#include "Parser/parse_file.h"
 #include "Parser/parse_stream.h"
+#include "Types/Error.h"
 
-int
+union Error
 parse_file(const char *filepath, struct Stack *dest) {
-    int lines_parsed;
-    FILE *fp = fopen(filepath, "r");
+    union Error lvl;
+    FILE *fp = NULL;
 
-    if (!fp) {
-        return -1;
+    if (filepath == NULL) {
+#if 0
+        return error_msg("no timestamps provided");
+#else
+        fprintf(stderr, "No timestamp file provided, paste them here:\n");
+        return parse_stream(stdin, dest);
+#endif
     }
 
-    lines_parsed = parse_stream(fp, dest);
+    fp = fopen(filepath, "r");
+    if (!fp) {
+        return error_msg("Couldn't open file: '%s'", filepath);
+    }
+
+    lvl = parse_stream(fp, dest);
     fclose(fp);
 
-    return lines_parsed;
+    return lvl;
 }

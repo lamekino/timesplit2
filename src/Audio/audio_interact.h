@@ -1,5 +1,7 @@
 #pragma once
 
 #include "Types/Stack.h"
+#include "Types/Error.h"
 
-int audio_interact(const char *audiopath, const struct Stack *parsed);
+union Error
+audio_interact(const char *audiopath, const struct Stack *parsed);

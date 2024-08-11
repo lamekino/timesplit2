@@ -2,12 +2,13 @@
 
 #include "Parser/parse_line.h"
 #include "Parser/parse_stream.h"
+#include "Types/Error.h"
 #include "Types/Song.h"
 #include "Types/Stack.h"
 
 #define BUFFER_SIZE 1024
 
-int
+union Error
 parse_stream(FILE *stream, struct Stack *dest) {
     int lineno;
     wchar_t linebuf[BUFFER_SIZE] = {0};
@@ -19,10 +20,16 @@ parse_stream(FILE *stream, struct Stack *dest) {
             continue;
         }
 
-        if (IS_PARSER_ERROR(song) || !stack_push(dest, &song)) {
-            return -1;
+        /* TODO: make parser error handle more cases such as running out of
+         * memory */
+        if (IS_PARSER_ERROR(song)) {
+            return error_msg("failed to parse line %d, '%s'", lineno, linebuf);
+        }
+
+        if (!stack_push(dest, &song)) {
+            return error_level(LEVEL_NO_MEM);
         }
     }
 
-    return lineno;
+    return error_level(LEVEL_SUCCESS);
 }

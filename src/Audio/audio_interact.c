@@ -5,10 +5,13 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
+#include "Types/Error.h"
 #include "Types/Song.h"
 #include "Types/Stack.h"
 #include "Audio/extract_song.h"
 #include "Audio/soundfile.h"
+#include "Debug/assert.h"
+#include "Audio/audio_interact.h"
 
 #define DEFAULT_PROMPT "type -1 to quit >> "
 #define MSG_PROMPT(msg) (msg "\n" DEFAULT_PROMPT)
@@ -124,15 +127,20 @@ song_interact(SoundFile *src, Timestamps *ts, size_t idx,
     return 0;
 }
 
-int
+union Error
 audio_interact(const char *audiopath, Timestamps *ts) {
     struct SoundFile snd = {0};
 
     double songbuf[4096];
     const size_t len = LENGTH(songbuf);
 
+    if (audiopath == NULL) {
+        return error_msg("no audio provided");
+    }
+
     if (!soundfile_open(&snd, audiopath, SFM_READ)) {
-        return -1;
+        return error_msg("could not open '%s': %s",
+                audiopath, sf_strerror(snd.file));
     }
 
     while (true) {
@@ -158,5 +166,5 @@ audio_interact(const char *audiopath, Timestamps *ts) {
     }
 
     soundfile_close(&snd);
-    return 0;
+    return error_level(LEVEL_SUCCESS);
 }

@@ -1,6 +1,7 @@
 #pragma once
 
+#include "Types/Error.h"
 #include "Types/Stack.h"
 
-int
+union Error
 parse_file(const char *filepath, struct Stack *dest);
