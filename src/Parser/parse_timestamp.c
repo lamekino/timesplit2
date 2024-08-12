@@ -52,7 +52,7 @@ parse_helper(const wchar_t *line, size_t linelen, size_t linepos,
 
     const size_t fieldpos = curfield - basefield;
 
-    if (linepos >= len || fieldpos >= FIELD_COUNT) {
+    if (linepos >= len || fieldpos >= FIELD_COUNT || iswspace(line[pos])) {
         return 0;
     }
 
@@ -87,7 +87,7 @@ parse_ts_field_num(const wchar_t *line, size_t len) {
     size_t i;
     size_t sepcount = 0;
 
-    for (i = 0; i < len; i++) {
+    for (i = 0; i < len && !iswspace(line[i]); i++) {
         if (line[i] == TS_SEP) {
             sepcount++;
         }
