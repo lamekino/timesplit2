@@ -42,6 +42,10 @@ compile_commands.json:
 $(PROG_NAME): $(OBJ)
 	$(CC) $(LDFLAGS) -o $@ $^
 
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(SRC_DIR)/%.h
+	@mkdir -p $(dir $@) || true
+	$(CC) $(CCFLAGS) $(LDFLAGS) -c -o $@ $<
+
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(dir $@) || true
 	$(CC) $(CCFLAGS) $(LDFLAGS) -c -o $@ $<
