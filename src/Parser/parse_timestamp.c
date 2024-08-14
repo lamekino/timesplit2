@@ -52,7 +52,11 @@ parse_helper(const wchar_t *line, size_t linelen, size_t linepos,
 
     const size_t fieldpos = curfield - basefield;
 
-    if (linepos >= len || fieldpos >= FIELD_COUNT || iswspace(line[pos])) {
+    if (linepos >= len || fieldpos >= FIELD_COUNT) {
+        return -1;
+    }
+
+    if (iswspace(line[pos])) {
         return 0;
     }
 
