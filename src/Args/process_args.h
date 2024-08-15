@@ -4,4 +4,4 @@
 #include "Types/Error.h"
 
 union Error
-process_args(char *argv[], struct ArgsConfig **config);
+process_args(char *argv[], struct ArgsConfig *config);

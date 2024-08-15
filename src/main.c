@@ -17,16 +17,12 @@ main(int argc, char *argv[]) {
 
     union Error err = {0};
     struct Stack parsed = {0};
-
-
-    struct ArgsConfig params = {0};
-    struct ArgsConfig *config = &params;
+    struct ArgsConfig config = {0};
 
     /* check argc */
     if (argc < 2) {
-        usage(stderr, argv[0]);
         err = error_level(LEVEL_FAILED);
-        goto FAIL;
+        goto SHOW_USAGE;
     }
 
     /* initialize song list */
@@ -51,28 +47,29 @@ main(int argc, char *argv[]) {
     }
 
     /* verify config and set defaults */
-    err = verify_config(config);
+    err = verify_config(&config);
     if (IS_ERROR(err)) {
         goto FAIL;
     }
 
     /* parse timestamps */
-    err = parse_file(config->timestamps_path, &parsed);
+    err = parse_file(config.timestamps_path, &parsed);
     if (IS_ERROR(err)) {
         goto FAIL;
     }
 
     /* interact with audio */
-    err = config->interact(config->audio_path, &parsed);
+    err = config.interact(config.audio_path, &parsed);
     if (IS_ERROR(err)) {
         goto FAIL;
     }
 
-    /* finish */
     stack_cleanup(&parsed, free_song);
     return EXIT_SUCCESS;
+
 SHOW_USAGE:
-    usage(stdout, argv[0]);
+    usage(stderr, argv[0]);
+
 FAIL:
     stack_cleanup(&parsed, free_song);
     return error_report(&err);

@@ -148,10 +148,7 @@ resolve_argument_flag(const char *arg) {
 }
 
 union Error
-process_args(char *argv[], struct ArgsConfig **cfg) {
-    struct ArgsConfig *config = *cfg;
-
-    const char *progname = argv[0];
+process_args(char *argv[], struct ArgsConfig *config) {
 
     char **argp = &argv[1];
 
@@ -172,12 +169,12 @@ process_args(char *argv[], struct ArgsConfig **cfg) {
             continue;
         }
 
-        pending_args = set_flag(flag, *cfg);
+        pending_args = set_flag(flag, config);
         if (pending_args < 0) {
             return error_msg("Error in processing flag: '%s'", cur);
         }
 
-        pending_args -= set_flag_args(&argp, pending_args, flag, *cfg);
+        pending_args -= set_flag_args(&argp, pending_args, flag, config);
         if (pending_args > 0) {
             return error_msg("Missing argument for: '%s'", cur);
         }
