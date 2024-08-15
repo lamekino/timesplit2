@@ -12,7 +12,7 @@
 #include "Audio/soundfile.h"
 #include "Debug/assert.h"
 #include "Audio/song_frame_offset.h"
-#include "Audio/interact_menu.h"
+#include "App/app_menu.h"
 
 #define DEFAULT_PROMPT "type -1 to quit >> "
 #define MSG_PROMPT(msg) (msg "\n" DEFAULT_PROMPT)
@@ -124,7 +124,7 @@ song_interact(SoundFile *src, Timestamps *ts, size_t idx,
 }
 
 union Error
-interact_menu(const char *audiopath, Timestamps *ts) {
+app_menu(const char *audiopath, Timestamps *ts) {
     struct SoundFile snd = {0};
 
     double songbuf[4096];

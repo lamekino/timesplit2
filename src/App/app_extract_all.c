@@ -5,12 +5,12 @@
 #include "Audio/song_frame_offset.h"
 #include "Types/Stack.h"
 #include "Types/Error.h"
-#include "Audio/interact_extract_all.h"
+#include "App/app_extract_all.h"
 
 #define LENGTH(xs) (sizeof(xs)/sizeof(*xs))
 
 union Error
-interact_extract_all(const char *audiopath, const struct Stack *ts) {
+app_extract_all(const char *audiopath, const struct Stack *ts) {
     struct SoundFile snd = {0};
     size_t idx;
 

@@ -3,6 +3,4 @@
 #include "Types/Stack.h"
 #include "Types/Error.h"
 
-#include "Audio/AudioInteract.h"
-
-AudioInteract interact_menu;
+typedef union Error AppMode(const char *, const struct Stack *);

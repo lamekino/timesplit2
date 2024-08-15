@@ -1,4 +1,4 @@
-#include "Audio/interact_menu.h"
+#include "App/app_menu.h"
 #include "Args/ArgsConfig.h"
 #include "Types/Error.h"
 #include "Debug/assert.h"
@@ -6,7 +6,7 @@
 static void
 check_defaults(struct ArgsConfig *config) {
     if (!config->interact) {
-        config->interact = &interact_menu;
+        config->interact = &app_menu;
     }
 }
 

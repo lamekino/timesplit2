@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Audio/AudioInteract.h"
+#include "App/AppMode.h"
 
 struct ArgsConfig {
     char *audio_path;
     char *timestamps_path;
     char *extract_dir;
 
-    AudioInteract *interact;
+    AppMode *interact;
 };

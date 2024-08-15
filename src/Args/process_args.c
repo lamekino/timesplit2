@@ -6,7 +6,7 @@
 #include "Args/ArgsConfig.h"
 #include "Args/usage.h"
 
-#include "Audio/interact_extract_all.h"
+#include "App/app_extract_all.h"
 #include "Debug/assert.h"
 #include "Types/Error.h"
 
@@ -49,7 +49,7 @@ set_flag(ArgsXMacro flag, struct ArgsConfig *config) {
         break;
     }
     case FLAG_EXTRACT_ALL: {
-        config->interact = &interact_extract_all;
+        config->interact = &app_extract_all;
         break;
     }
     case FLAG_EXTRACT_OUTPUT: {

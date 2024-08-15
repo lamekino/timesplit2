@@ -6,7 +6,6 @@
 #include "Args/process_args.h"
 #include "Args/usage.h"
 #include "Args/verify_config.h"
-#include "Audio/interact_menu.h"
 #include "Debug/assert.h"
 #include "Parser/parse_file.h"
 #include "Types/Error.h"
@@ -20,8 +19,7 @@ main(int argc, char *argv[]) {
     struct Stack parsed = {0};
 
 
-    /* TODO: make this part of process_args */
-    struct ArgsConfig params = { .interact = &interact_menu };
+    struct ArgsConfig params = {0};
     struct ArgsConfig *config = &params;
 
     /* check argc */
