@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "Debug/assert.h"
+#include "Args/usage.h"
 #include "Types/Error.h"
 
 static union Error
@@ -37,21 +38,25 @@ error_msg(const char *fmt, ...) {
 }
 
 int
-error_report(const union Error *err) {
-    if (IS_OK(*err)) {
+error_report(const char *progname, const union Error *err) {
+    switch (err->level) {
+    case LEVEL_SHOW_HELP: {
+        usage(stdout, progname);
         return EXIT_SUCCESS;
     }
-
-    if (IS_ERROR_LEVEL(*err, LEVEL_NO_MEM)) {
-        fprintf(stderr, "fatal memory error! you need more RAM!!\n");
+    case LEVEL_NO_MEM: {
+        fprintf(stderr, "%s: fatal memory error! you need more RAM!!\n",
+                progname);
         return EXIT_FAILURE;
     }
+    default: {
+        if ((char *) ERROR_LEVEL_COUNT < err->description) {
+            fprintf(stderr, "%s\n", err->description);
+            free(err->description);
+            return EXIT_FAILURE;
+        }
+    }}
 
-    if ((char *) ERROR_LEVEL_COUNT < err->description) {
-        fprintf(stderr, "%s\n", err->description);
-        free(err->description);
-    }
-
-    return EXIT_FAILURE;
+    return EXIT_SUCCESS;
 }
 
