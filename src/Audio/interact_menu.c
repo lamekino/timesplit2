@@ -11,7 +11,8 @@
 #include "Audio/extract_song.h"
 #include "Audio/soundfile.h"
 #include "Debug/assert.h"
-#include "Audio/audio_interact.h"
+#include "Audio/song_frame_offset.h"
+#include "Audio/interact_menu.h"
 
 #define DEFAULT_PROMPT "type -1 to quit >> "
 #define MSG_PROMPT(msg) (msg "\n" DEFAULT_PROMPT)
@@ -74,11 +75,6 @@ menu_interact(Timestamps *ts, const char *fmt, ...) {
     return read_int();
 }
 
-static sf_count_t
-song_frame_offset(Song *song, int samplerate) {
-    return song->timestamp * samplerate;
-}
-
 /* this approach should make extracting all songs from the file trival
  *
  * ie,
@@ -128,7 +124,7 @@ song_interact(SoundFile *src, Timestamps *ts, size_t idx,
 }
 
 union Error
-audio_interact(const char *audiopath, Timestamps *ts) {
+interact_menu(const char *audiopath, Timestamps *ts) {
     struct SoundFile snd = {0};
 
     double songbuf[4096];

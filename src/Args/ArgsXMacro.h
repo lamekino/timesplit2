@@ -26,8 +26,8 @@ X(FLAG_EXTRACT_ALL, "extract all songs found", \
      'a', "--all") \
 X(FLAG_EXTRACT_OUTPUT, "[TODO] set the directory for songs to be extracted to", \
      'o', "--output") \
-X(FLAG_TIMESTAMPS_FILE, "[TODO] use a file to read timestamps instead of stdin", \
-     'f', "--timestamps")
+X(FLAG_TIMESTAMPS_FILE, "use a file to read timestamps instead of stdin", \
+     'i', "--timestamps")
 
 typedef enum {
     /* WARN: this is actually required to make GCC not treat this as signed */

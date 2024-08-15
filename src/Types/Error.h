@@ -2,6 +2,8 @@
 
 enum ErrorLevel {
     LEVEL_SUCCESS,
+    LEVEL_SHOW_HELP,
+
     LEVEL_FAILED,
     LEVEL_NO_MEM,
 
@@ -17,7 +19,7 @@ union Error {
 
 #define error_level(lvl) ((union Error) { .level = lvl })
 
-#define IS_OK(e) ((e).level == LEVEL_SUCCESS)
+#define IS_OK(e) ((e).level < LEVEL_FAILED)
 #define IS_ERROR(e) ((e).level >= LEVEL_FAILED)
 #define IS_ERROR_LEVEL(e, id) ((e).level == (id))
 

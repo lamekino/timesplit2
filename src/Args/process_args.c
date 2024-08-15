@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <string.h>
 
 #include "Args/process_args.h"
@@ -5,6 +6,7 @@
 #include "Args/ArgsConfig.h"
 #include "Args/usage.h"
 
+#include "Audio/interact_extract_all.h"
 #include "Debug/assert.h"
 #include "Types/Error.h"
 
@@ -47,7 +49,7 @@ set_flag(ArgsXMacro flag, struct ArgsConfig *config) {
         break;
     }
     case FLAG_EXTRACT_ALL: {
-        config->use_extract_all = true;
+        config->interact = &interact_extract_all;
         break;
     }
     case FLAG_EXTRACT_OUTPUT: {
@@ -145,12 +147,6 @@ resolve_argument_flag(const char *arg) {
     return -1;
 }
 
-static void
-set_help_flag(const char *progname, struct ArgsConfig **cfg) {
-    *cfg = NULL;
-    usage(stdout, progname);
-}
-
 union Error
 process_args(char *argv[], struct ArgsConfig **cfg) {
     struct ArgsConfig *config = *cfg;
@@ -192,8 +188,7 @@ process_args(char *argv[], struct ArgsConfig **cfg) {
     }
 
     if (flag == FLAG_HELP) {
-        set_help_flag(progname, cfg);
-        return error_level(LEVEL_FAILED);
+        return error_level(LEVEL_SHOW_HELP);
     }
 
     return error_level(LEVEL_SUCCESS);
