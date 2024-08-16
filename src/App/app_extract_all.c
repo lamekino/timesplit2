@@ -5,8 +5,6 @@
 #include "Audio/song_frame_offset.h"
 #include "Types/Error.h"
 #include "App/app_extract_all.h"
-
-#define STACK_IMPL
 #include "Types/Stack.h"
 
 #define LENGTH(xs) (sizeof(xs)/sizeof(*xs))

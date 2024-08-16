@@ -1,6 +1,48 @@
-#pragma once
+#ifndef STACK_H
+#define STACK_H
 
 #include <stdlib.h>
+
+#ifndef STACK_T
+#include "Types/Song.h"
+#define STACK_T struct Song *
+#endif
+
+typedef void (CloseCallback)(void *);
+
+typedef STACK_T stack_elem_t;
+
+struct Stack {
+    stack_elem_t *elems;
+    size_t count;
+    size_t capacity;
+};
+
+stack_elem_t *
+stack_create(struct Stack *stk);
+
+#define stack_push(stk, item_ptr) \
+    stack_push_item((stk), (item_ptr), sizeof(*stk->elems[0]))
+
+stack_elem_t
+stack_pop(struct Stack *stk);
+
+stack_elem_t *
+stack_push_item(struct Stack *stk, const stack_elem_t item_ptr,
+        size_t item_size);
+
+stack_elem_t
+stack_mod_index(const struct Stack *stk, size_t idx);
+
+void
+stack_cleanup(struct Stack *stk, CloseCallback free_elem);
+
+void
+stack_reclaim(struct Stack *stk, CloseCallback free_elem);
+
+#endif /* STACK_H */
+
+#ifdef STACK_IMPL
 
 #define INITIAL_STACK_CAPACITY 61u
 
@@ -10,29 +52,7 @@
 #define STACKCPY(dest, src, _) (*(dest) = *(src), (dest))
 #endif
 
-#ifndef STACK_T
-#include "Types/Song.h"
-#define STACK_T struct Song *
-#define CLOSE_CALLBACK free_song
-#endif
-
-#ifndef STACK_IMPL
-#define API static
-#else
-#define API extern
-#endif
-
-typedef STACK_T stack_elem_t;
-
-typedef void (CloseCallback)(void *);
-
-struct Stack {
-    stack_elem_t *elems;
-    size_t count;
-    size_t capacity;
-};
-
-API stack_elem_t *
+stack_elem_t *
 stack_create(struct Stack *stk) {
     struct Stack created =
         (struct Stack) {
@@ -74,7 +94,7 @@ prepush(void *p, size_t *length, size_t *capacity, size_t elem_size) {
 #define stack_push(stk, item_ptr) \
     stack_push_item((stk), (item_ptr), sizeof(*stk->elems[0]))
 
-API stack_elem_t *
+stack_elem_t *
 stack_push_item(struct Stack *stk, const stack_elem_t item_ptr,
         size_t item_size) {
     stack_elem_t dup = malloc(item_size);
@@ -94,7 +114,7 @@ stack_push_item(struct Stack *stk, const stack_elem_t item_ptr,
     return &stk->elems[stk->count - 1];
 }
 
-API stack_elem_t
+stack_elem_t
 stack_pop(struct Stack *stk) {
     if (stk->count == 0) {
         return NULL;
@@ -104,12 +124,12 @@ stack_pop(struct Stack *stk) {
     return stk->elems[stk->count];
 }
 
-API stack_elem_t
+stack_elem_t
 stack_mod_index(const struct Stack *stk, size_t idx) {
     return stk->elems[idx % stk->count];
 }
 
-API void
+void
 stack_cleanup(struct Stack *stk, CloseCallback free_elem) {
     while (stk->count > 0 && stk->count--) {
         free_elem(stk->elems[stk->count]);
@@ -118,16 +138,11 @@ stack_cleanup(struct Stack *stk, CloseCallback free_elem) {
     free(stk->elems);
 }
 
-API void
-stack_free(struct Stack *stk) {
-    stack_cleanup(stk, CLOSE_CALLBACK);
-}
-
-API void
+void
 stack_reclaim(struct Stack *stk, CloseCallback free_elem) {
 }
 
-#ifdef STACK_IMPL
 #undef STACK_IMPL
 #include "Types/Stack.h"
-#endif
+
+#endif /* STACK_IMPL */

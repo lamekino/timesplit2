@@ -5,8 +5,15 @@
 #include "Args/process_args.h"
 #include "Args/verify_config.h"
 #include "Parser/parse_file.h"
-#include "Types/Error.h"
+
+#define STACK_IMPL
 #include "Types/Stack.h"
+
+#define SONG_IMPL
+#include "Types/Song.h"
+
+#define ERROR_IMPL
+#include "Types/Error.h"
 
 int
 main(int argc, char *argv[]) {

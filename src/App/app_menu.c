@@ -6,14 +6,12 @@
 #include <stdarg.h>
 
 #include "Types/Error.h"
-#include "Types/Song.h"
 #include "Audio/extract_song.h"
 #include "Audio/soundfile.h"
 #include "Debug/assert.h"
 #include "Audio/song_frame_offset.h"
 #include "App/app_menu.h"
 
-#define STACK_IMPL
 #include "Types/Stack.h"
 
 #define DEFAULT_PROMPT "type -1 to quit >> "
