@@ -61,7 +61,7 @@ menu_interact(Timestamps *ts, const char *fmt, ...) {
     for (i = 0; i < ts->count; i++) {
         Song *cur = ts->elems[i];
 
-        printf("[%zu] %ls [+%lds]\n", i + 1, cur->title, cur->timestamp);
+        printf("[%zu] \"%ls\" [+%lds]\n", i + 1, cur->title, cur->timestamp);
     }
 
     {
@@ -75,18 +75,6 @@ menu_interact(Timestamps *ts, const char *fmt, ...) {
     return read_int();
 }
 
-/* this approach should make extracting all songs from the file trival
- *
- * ie,
- * #define next(idx, c) ((idx) + 1) % c)
- * for (idx = 0; idx < parsed->count; idx++) {
- *      cur = parsed->elems[idx];
- *      next = parsed->elems[next(idx, parsed->count)];
- *
- *      if (next->timestamp == 0) read_until_end(sndfile, cur)
- *      else read_until read_until(sndfile, cur, next);
- * }
- */
 static int
 song_interact(SoundFile *src, Timestamps *ts, size_t idx,
         double *songbuf, sf_count_t buflen) {
