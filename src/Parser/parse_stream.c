@@ -4,6 +4,8 @@
 #include "Parser/parse_stream.h"
 #include "Types/Error.h"
 #include "Types/Song.h"
+
+#define STACK_IMPL
 #include "Types/Stack.h"
 
 #define BUFFER_SIZE 1024

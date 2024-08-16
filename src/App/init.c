@@ -1,6 +1,8 @@
 #include <locale.h>
 
 #include "Types/Error.h"
+
+#define STACK_IMPL
 #include "Types/Stack.h"
 
 union Error
