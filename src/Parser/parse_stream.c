@@ -10,11 +10,13 @@
 
 union Error
 parse_stream(FILE *stream, struct Stack *dest) {
+    const size_t max_write = BUFFER_SIZE - 1;
+
     int lineno;
     wchar_t linebuf[BUFFER_SIZE] = {0};
 
-    for (lineno = 0; fgetws(linebuf, BUFFER_SIZE, stream); lineno++) {
-        struct Song song = parse_line(linebuf, BUFFER_SIZE);
+    for (lineno = 0; fgetws(linebuf, max_write, stream); lineno++) {
+        struct Song song = parse_line(linebuf);
 
         if (IS_PARSER_SKIP(song)) {
             continue;

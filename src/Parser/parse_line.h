@@ -4,4 +4,4 @@
 #include "Types/Song.h"
 
 struct Song
-parse_line(const wchar_t *line_buf, size_t max_len);
+parse_line(const wchar_t *line_buf);
