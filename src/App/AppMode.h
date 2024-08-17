@@ -3,4 +3,4 @@
 #include "Types/Stack.h"
 #include "Types/Error.h"
 
-typedef union Error AppMode(const char *, const struct Stack *);
+typedef union Error AppMode(const char *, const char *, const struct Stack *);

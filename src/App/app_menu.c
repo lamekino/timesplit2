@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
+#include "App/Output.h"
 #include "Types/Error.h"
 #include "Audio/extract_song.h"
 #include "Audio/soundfile.h"
@@ -75,48 +76,48 @@ menu_interact(Timestamps *ts, const char *fmt, ...) {
     return read_int();
 }
 
-static int
-song_interact(SoundFile *src, Timestamps *ts, size_t idx,
-        double *songbuf, sf_count_t buflen) {
-    const int rate = src->info.samplerate;
+enum SongInteractFail {
+    SONG_INTERACT_OK,
+    SONG_INTERACT_FAIL_SEEKABLE,
+    SONG_INTERACT_FAIL_PROMPT,
+    SONG_INTERACT_FAIL_EXTRACT
+};
 
+static enum SongInteractFail
+song_interact(const char *outdir, SoundFile *src, Timestamps *ts, size_t idx,
+        double *songbuf, sf_count_t buflen) {
     Song *cur = stack_mod_index(ts, idx);
     Song *next = stack_mod_index(ts, idx + 1);
 
-    const sf_count_t start = song_frame_offset(cur, rate);
-    const sf_count_t finish = song_frame_offset(next, rate);
+    Output out = output_create(outdir, cur, next, src->info.samplerate);
 
     if (!src->info.seekable) {
-        return -1;
+        return SONG_INTERACT_FAIL_SEEKABLE;
     }
 
     if (!read_yes_no("extract '%ls'?", cur->title)) {
-        return -1;
+        return SONG_INTERACT_FAIL_PROMPT;
     }
 
-    if (sf_seek(src->file, start, SEEK_SET) < 0) {
-        return -1;
+    if (extract_song(src, &out, songbuf, buflen) < 0) {
+        return SONG_INTERACT_FAIL_EXTRACT;
     }
 
-    if (extract_song(src, cur, start, finish, songbuf, buflen) < 0) {
-        return -1;
-    }
-
-    {
-        fprintf(stderr,"done! [Enter]");
-        read_int();
-        return 0;
-    }
-
-    return 0;
+    fprintf(stderr,"done! [Enter]");
+    read_int();
+    return SONG_INTERACT_OK;
 }
 
 union Error
-app_menu(const char *audiopath, Timestamps *ts) {
+app_menu(const char *outdir, const char *audiopath, Timestamps *ts) {
+    union Error y = error_level(LEVEL_SUCCESS);
+
     struct SoundFile snd = {0};
 
     double songbuf[4096];
     const size_t len = LENGTH(songbuf);
+
+    union UserIndex in;
 
     if (audiopath == NULL) {
         return error_msg("no audio provided");
@@ -127,28 +128,43 @@ app_menu(const char *audiopath, Timestamps *ts) {
                 audiopath, sf_strerror(snd.file));
     }
 
-    while (true) {
-        union UserIndex in = menu_interact(ts, DEFAULT_PROMPT);
-
-        if (in.got == EOF) {
-            break;
-        }
-
+    for (
+        in = menu_interact(ts, DEFAULT_PROMPT);
+        !IS_ERROR(y) && in.got != EOF;
+        in = menu_interact(ts, DEFAULT_PROMPT)
+    ) {
         /* if the recieved is negative, then it must be bigger than a realisic
          * parsed->count size in unsigned binary */
-        while (!(1 <= in.idx && in.idx <= ts->count)) {
+        if (!(1 <= in.idx && in.idx <= ts->count)) {
             in = menu_interact(ts, MSG_PROMPT("invalid value: %d"), in.got);
-            if (in.got == EOF) {
-                break;
-            }
+            continue;
         }
 
-        /* FIXME: handle this error */
-        if (song_interact(&snd, ts, in.idx - 1, songbuf, len) < 0) {
+        switch (song_interact(outdir, &snd, ts, in.idx - 1, songbuf, len)) {
+        case SONG_INTERACT_OK: {
             break;
         }
+        case SONG_INTERACT_FAIL_PROMPT: {
+            y = error_level(LEVEL_FAILED);
+            break;
+        }
+        case SONG_INTERACT_FAIL_SEEKABLE: {
+            y = error_msg("file has no seek: '%s'", snd.file);
+            break;
+        }
+        case SONG_INTERACT_FAIL_EXTRACT: {
+            y = error_msg("failed to extract: '%s'", snd.file);
+            break;
+        }
+        default: {
+            y = (
+                DEBUG_ASSERT(0, "unreachable"),
+                error_level(LEVEL_FAILED)
+            );
+            break;
+        }}
     }
 
     soundfile_close(&snd);
-    return error_level(LEVEL_SUCCESS);
+    return y;
 }

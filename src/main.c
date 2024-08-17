@@ -41,7 +41,7 @@ main(int argc, char *argv[]) {
         goto FAIL;
     }
 
-    err = config.interact(config.audio_path, &songs);
+    err = config.interact(config.extract_dir, config.audio_path, &songs);
     if (IS_ERROR(err)) {
         goto FAIL;
     }

@@ -1,3 +1,5 @@
+#include <sys/stat.h>
+
 #include "App/app_menu.h"
 #include "Args/ArgsConfig.h"
 #include "Types/Error.h"
@@ -12,8 +14,19 @@ check_defaults(struct ArgsConfig *config) {
 
 static union Error
 check_required(struct ArgsConfig *config) {
-    (void) config;
     DEBUG_ASSERT(config->interact != NULL, "missing callback");
+
+    if (config->extract_dir) {
+        struct stat dirstat;
+
+        if (stat(config->extract_dir, &dirstat) != 0) {
+            return error_msg("failed to stat file '%s'", config->extract_dir);
+        }
+
+        if (!S_ISDIR(dirstat.st_mode)) {
+            return error_msg("not a directory: '%s'", config->extract_dir);
+        }
+    }
 
     return error_level(LEVEL_SUCCESS);
 }

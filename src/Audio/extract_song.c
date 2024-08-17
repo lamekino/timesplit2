@@ -1,11 +1,14 @@
 #include <string.h>
+#include <limits.h>
 #include <sndfile.h>
 
 #include "Types/Song.h"
 #include "Audio/soundfile.h"
 #include "Audio/extract_song.h"
+#include "Debug/assert.h"
 
 #define MIN(x, y) ((x) > (y) ? (y) : (x))
+#define BOUNDED(x, lo, hi) ((lo) <= (x) && (x) <= (hi))
 
 static const char *
 fileformat_extension(int format) {
@@ -19,20 +22,30 @@ fileformat_extension(int format) {
 }
 
 static int
-song_filename(Song *song, int format, char *buf, size_t buflen) {
+song_filename(const char *dir, Song *song, int format,
+        char *buf, size_t buflen) {
     const char *extension = fileformat_extension(format);
 
-    const size_t ext_len = strlen(extension) + 1;
-    const size_t title_len = wcslen(song->title);
+    const long long dirlen = strlen(dir);
+    const long long extlen = strlen(extension) + 1;
+    const long long titlelen = wcslen(song->title);
+    const long long trunclen = buflen - extlen - dirlen;
 
-    const size_t max_title_len = MIN(title_len, buflen - ext_len);
-    const int use_len = (int) max_title_len;
+    int taken, written;
 
-    if (use_len < 0) {
+    if (!(BOUNDED(titlelen, 0, INT_MAX) && BOUNDED(trunclen, 0, INT_MAX))) {
         return -1;
     }
 
-    if (snprintf(buf, buflen, "%.*ls.%s", use_len, song->title, extension) < 0) {
+    taken = MIN(titlelen, trunclen);
+    if (taken < 0) {
+        return -1;
+    }
+
+    written =
+        snprintf(buf, buflen, "%s/%.*ls.%s",
+            dir, taken, song->title, extension);
+    if (written < 0) {
         return -1;
     }
 
@@ -69,23 +82,34 @@ extract_section(SoundFile *src, SoundFile *dest, const sf_count_t start,
 }
 
 int
-extract_song(SoundFile *src, Song *song, sf_count_t position,
-        sf_count_t ending, double *songbuf, sf_count_t buflen) {
+extract_song(SoundFile *src, Output *out, double *songbuf, sf_count_t buflen) {
     const int format = src->info.format;
 
     struct SoundFile dest = (SoundFile) { .info = src->info };
 
-    char filename[512] = {0};
+    char fname[512] = {0};
 
-    if (song_filename(song, format, filename, sizeof(filename)) < 0) {
+    const char *outdir = out->output_directory;
+    const sf_count_t start = out->start;
+    const sf_count_t end = out->end;
+
+    if (!outdir) {
+        outdir = "./";
+    }
+
+    if (song_filename(outdir, out->song, format, fname, sizeof(fname)) < 0) {
         return -1;
     }
 
-    if (!soundfile_open(&dest, filename, SFM_WRITE)) {
+    if (!soundfile_open(&dest, fname, SFM_WRITE)) {
         return -1;
     }
 
-    if (extract_section(src, &dest, position, ending, songbuf, buflen) < 0) {
+    if (sf_seek(src->file, start, SEEK_SET) < 0) {
+        return -1;
+    }
+
+    if (extract_section(src, &dest, start, end, songbuf, buflen) < 0) {
         soundfile_close(&dest);
         return -1;
     }

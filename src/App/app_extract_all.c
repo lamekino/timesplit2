@@ -10,7 +10,8 @@
 #define LENGTH(xs) (sizeof(xs)/sizeof(*xs))
 
 union Error
-app_extract_all(const char *audiopath, const struct Stack *ts) {
+app_extract_all(const char *outdir, const char *audiopath,
+        const struct Stack *ts) {
     struct SoundFile snd = {0};
     size_t idx;
 
@@ -23,17 +24,14 @@ app_extract_all(const char *audiopath, const struct Stack *ts) {
     }
 
     for (idx = 0; idx < ts->count; idx++) {
-        const size_t rate = snd.info.samplerate;
-
         Song *cur = stack_mod_index(ts, idx);
         Song *next = stack_mod_index(ts, idx + 1);
 
-        const sf_count_t start = song_frame_offset(cur, rate);
-        const sf_count_t finish = song_frame_offset(next, rate);
+        Output out = output_create(outdir, cur, next, snd.info.samplerate);
 
         printf("Extracting: '%ls'\n", cur->title);
 
-        if (extract_song(&snd, cur, start, finish, songbuf, buflen) < 0) {
+        if (extract_song(&snd, &out, songbuf, buflen) < 0) {
             return error_msg("failed to extract '%s'", cur->title);
         }
     }

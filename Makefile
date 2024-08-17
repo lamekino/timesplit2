@@ -31,7 +31,7 @@ OBJ = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRC))
 all: $(PROG_NAME)
 
 clean:
-	rm -fr $(OBJ_DIR) *$(PROG_NAME) *.$(OUTPUT_EXT)
+	rm -fr out-audio $(OBJ_DIR) *$(PROG_NAME) *.$(OUTPUT_EXT)
 
 install: all
 	install -m 0755 $(PROG_NAME) $(PREFIX)/bin
@@ -40,6 +40,7 @@ compile_commands.json:
 	@bear -- make
 
 $(PROG_NAME): $(OBJ)
+	@mkdir out-audio || true
 	$(CC) $(LDFLAGS) -o $@ $^
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(SRC_DIR)/%.h
