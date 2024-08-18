@@ -2,6 +2,7 @@
 #include <limits.h>
 #include <sndfile.h>
 
+#include "App/AppOutput.h"
 #include "Types/Song.h"
 #include "Audio/soundfile.h"
 #include "Audio/extract_song.h"
@@ -82,7 +83,8 @@ extract_section(SoundFile *src, SoundFile *dest, const sf_count_t start,
 }
 
 int
-extract_song(SoundFile *src, Output *out, double *songbuf, sf_count_t buflen) {
+extract_song(SoundFile *src, AppOutput *out,
+        double *songbuf, sf_count_t buflen) {
     const int format = src->info.format;
 
     struct SoundFile dest = (SoundFile) { .info = src->info };

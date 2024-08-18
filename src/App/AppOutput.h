@@ -4,14 +4,14 @@
 
 #include "Types/Song.h"
 
-struct Output {
+struct AppOutput {
     const char *output_directory;
     Song *song;
     sf_count_t start;
     sf_count_t end;
 };
 
-typedef const struct Output Output;
+typedef const struct AppOutput AppOutput;
 
-struct Output
-output_create(const char *outdir, Song *cur, Song *next, size_t rate);
+struct AppOutput
+app_output_create(const char *outdir, Song *cur, Song *next, size_t rate);

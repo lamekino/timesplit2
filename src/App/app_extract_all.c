@@ -1,5 +1,6 @@
 #include <sndfile.h>
 
+#include "App/AppOutput.h"
 #include "Audio/soundfile.h"
 #include "Audio/extract_song.h"
 #include "Audio/song_frame_offset.h"
@@ -27,7 +28,8 @@ app_extract_all(const char *outdir, const char *audiopath,
         Song *cur = stack_mod_index(ts, idx);
         Song *next = stack_mod_index(ts, idx + 1);
 
-        Output out = output_create(outdir, cur, next, snd.info.samplerate);
+        AppOutput out =
+            app_output_create(outdir, cur, next, snd.info.samplerate);
 
         printf("Extracting: '%ls'\n", cur->title);
 

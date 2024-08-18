@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-#include "App/Output.h"
+#include "App/AppOutput.h"
 #include "Types/Error.h"
 #include "Audio/extract_song.h"
 #include "Audio/soundfile.h"
@@ -89,7 +89,7 @@ song_interact(const char *outdir, SoundFile *src, Timestamps *ts, size_t idx,
     Song *cur = stack_mod_index(ts, idx);
     Song *next = stack_mod_index(ts, idx + 1);
 
-    Output out = output_create(outdir, cur, next, src->info.samplerate);
+    AppOutput out = app_output_create(outdir, cur, next, src->info.samplerate);
 
     if (!src->info.seekable) {
         return SONG_INTERACT_FAIL_SEEKABLE;
