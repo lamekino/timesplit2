@@ -113,7 +113,7 @@ union Error
 app_menu(const char *outdir, const char *audiopath, Timestamps *ts) {
     union Error y = error_level(LEVEL_SUCCESS);
 
-    struct AudioFile snd = {0};
+    struct AudioFile audio = {0};
 
     double songbuf[4096];
     const size_t len = LENGTH(songbuf);
@@ -124,9 +124,9 @@ app_menu(const char *outdir, const char *audiopath, Timestamps *ts) {
         return error_msg("no audio provided");
     }
 
-    if (!audiofile_open(&snd, audiopath, SFM_READ)) {
+    if (!audiofile_open(&audio, audiopath, SFM_READ)) {
         return error_msg("could not open '%s': %s",
-                audiopath, sf_strerror(snd.file));
+                audiopath, sf_strerror(audio.file));
     }
 
     for (
@@ -141,7 +141,7 @@ app_menu(const char *outdir, const char *audiopath, Timestamps *ts) {
             continue;
         }
 
-        switch (song_interact(outdir, &snd, ts, in.idx - 1, songbuf, len)) {
+        switch (song_interact(outdir, &audio, ts, in.idx - 1, songbuf, len)) {
         case SONG_INTERACT_OK: {
             break;
         }
@@ -150,11 +150,11 @@ app_menu(const char *outdir, const char *audiopath, Timestamps *ts) {
             break;
         }
         case SONG_INTERACT_FAIL_SEEKABLE: {
-            y = error_msg("file has no seek: '%s'", snd.file);
+            y = error_msg("file has no seek: '%s'", audio.file);
             break;
         }
         case SONG_INTERACT_FAIL_EXTRACT: {
-            y = error_msg("failed to extract: '%s'", snd.file);
+            y = error_msg("failed to extract: '%s'", audio.file);
             break;
         }
         default: {
@@ -166,6 +166,6 @@ app_menu(const char *outdir, const char *audiopath, Timestamps *ts) {
         }}
     }
 
-    audiofile_close(&snd);
+    audiofile_close(&audio);
     return y;
 }
