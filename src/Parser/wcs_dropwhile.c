@@ -1,7 +1,10 @@
 #include <wchar.h>
 #include <wctype.h>
+#include <errno.h>
 
 #include "Parser/wcs_dropwhile.h"
+
+#define WCDIGIT(wc) ((wc) - L'0')
 
 int
 iswtrailing(const wint_t wc) {
@@ -82,3 +85,21 @@ const wchar_t *
 wcs_ltrim(const wchar_t *wcs, size_t *maxlen) {
     return wcs_dropwhile(iswspace, wcs, maxlen);
 }
+
+long
+wcs_digit_sum(const wchar_t *digits, size_t len) {
+    long sum = 0;
+    size_t i;
+
+    for (i = 0; i < len; i++) {
+        if (!iswdigit(digits[i])) {
+            errno = EINVAL;
+            return -1;
+        }
+
+        sum += 10 * sum + WCDIGIT(digits[i]);
+    }
+
+    return sum;
+}
+

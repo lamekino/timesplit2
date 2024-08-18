@@ -1,6 +1,7 @@
 #include <bits/types/time_t.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include <wchar.h>
 #include <wctype.h>
 
@@ -9,40 +10,24 @@
 #include "Parser/wcs_dropwhile.h"
 #include "Parser/parse_line.h"
 
-#include <stdio.h>
-
-#include <errno.h>
 
 #define TS_SEP L':'
-#define WCDIGIT(wc) ((wc) - L'0')
 
-#define HOUR_SECOND(h) (3600 * (h))
-#define MIN_SECOND(m) (60 * (m))
+#define HOUR_SECONDS 3600
+#define MIN_SECONDS 60
 
 typedef int TimestampValue;
 
 enum TimestampField {
-    TS_HOUR,
-    TS_MIN,
     TS_SEC,
+    TS_MIN,
+    TS_HOUR,
 
     FIELD_COUNT
 };
 
-union Timestamp {
-    struct {
-        TimestampValue hour;
-        TimestampValue min;
-        TimestampValue sec;
-    };
-
-    TimestampValue fields[FIELD_COUNT];
-};
-
 static enum TimestampField
 timestamp_field_num(const wchar_t *line, size_t len) {
-    const size_t MAX_SEPS = FIELD_COUNT - 1;
-
     size_t i;
     size_t sepcount = 0;
 
@@ -52,11 +37,11 @@ timestamp_field_num(const wchar_t *line, size_t len) {
         }
     }
 
-    if (!(1 <= sepcount && sepcount <= MAX_SEPS)) {
+    if (!(TS_MIN <= sepcount && sepcount <= TS_HOUR)) {
         return -1;
     }
 
-    return MAX_SEPS - sepcount;
+    return sepcount;
 }
 
 static const wchar_t *
@@ -93,48 +78,29 @@ timestamp_field_verify(const wchar_t *timestamp, size_t len,
     return 0;
 }
 
-/* TODO: make wcs_foldl */
-static long
-wcs_digit_sum(const wchar_t *digits, size_t len) {
-    long sum = 0;
-    size_t i;
-
-    for (i = 0; i < len; i++) {
-        if (!iswdigit(digits[i])) {
-            errno = EINVAL;
-            return -1;
-        }
-
-        sum += 10 * sum + WCDIGIT(digits[i]);
-    }
-
-    return sum;
-}
-
 static time_t
 parse_line_timestamp(const wchar_t *timestamp, size_t len) {
-    enum TimestampField fieldno;
+    const wchar_t *const base = timestamp;
 
-    union Timestamp ts = {0};
+    TimestampValue ts[FIELD_COUNT] = {0};
+    enum TimestampField fieldno = timestamp_field_num(timestamp, len);
 
-    const int init_field = timestamp_field_num(timestamp, len);
-
-    if (init_field < 0) {
+    if (fieldno < 0) {
         return -1;
     }
 
-    for (
-        fieldno = init_field;
-        fieldno < FIELD_COUNT;
-        fieldno++
-    ) {
+    while (fieldno > 0) {
         const wchar_t *start = timestamp;
 
         size_t digitlen = len;
-        TimestampValue *fieldcur = &ts.fields[fieldno];
+        TimestampValue *fieldcur = &ts[fieldno];
 
         timestamp = timestamp_next_sep(timestamp, &digitlen, fieldno);
         if (!timestamp) {
+            return -1;
+        }
+
+        if (timestamp_field_verify(timestamp, len, digitlen, fieldno) < 0) {
             return -1;
         }
 
@@ -143,14 +109,12 @@ parse_line_timestamp(const wchar_t *timestamp, size_t len) {
             return -1;
         }
 
-        if (timestamp_field_verify(timestamp, len, digitlen, fieldno) < 0) {
-            return -1;
-        }
-
+        /* TODO: make sure there is a separator */
         timestamp += fieldno == TS_HOUR || fieldno == TS_MIN;
+        fieldno--;
     }
 
-    return ts.sec + MIN_SECOND(ts.min) + HOUR_SECOND(ts.hour);
+    return ts[TS_HOUR] * HOUR_SECONDS + ts[TS_MIN] * MIN_SECONDS + ts[TS_SEC];
 }
 
 static struct Song
@@ -177,7 +141,7 @@ parse_line_finish(const wchar_t *timestamp, size_t ts_len,
         return PARSER_ERROR;
     }
 
-    memcpy(song.title, title, sizeof(*song.title) * title_len);
+    wcsncpy(song.title, title, title_len);
     song.title[title_len] = '\0';
 
     return song;

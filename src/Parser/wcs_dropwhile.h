@@ -22,3 +22,6 @@ wcs_ltrim(const wchar_t *wcs, size_t *maxlen);
 
 const wchar_t *
 wcs_rtrim(const wchar_t *wcs, size_t *maxlen);
+
+long
+wcs_digit_sum(const wchar_t *digits, size_t len);
