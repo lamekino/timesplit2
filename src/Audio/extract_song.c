@@ -4,7 +4,7 @@
 
 #include "App/AppOutput.h"
 #include "Types/Song.h"
-#include "Audio/soundfile.h"
+#include "Audio/AudioFile.h"
 #include "Audio/extract_song.h"
 #include "Debug/assert.h"
 
@@ -54,7 +54,7 @@ song_filename(const char *dir, Song *song, int format,
 }
 
 static int
-extract_section(SoundFile *src, SoundFile *dest, const sf_count_t start,
+extract_section(AudioFile *src, AudioFile *dest, const sf_count_t start,
         const sf_count_t finish, double *songbuf, sf_count_t buflen) {
     const int channels = src->info.channels;
     const int is_last_song = (start > finish);
@@ -83,11 +83,11 @@ extract_section(SoundFile *src, SoundFile *dest, const sf_count_t start,
 }
 
 int
-extract_song(SoundFile *src, AppOutput *out,
+extract_song(AudioFile *src, AppOutput *out,
         double *songbuf, sf_count_t buflen) {
     const int format = src->info.format;
 
-    struct SoundFile dest = (SoundFile) { .info = src->info };
+    struct AudioFile dest = (AudioFile) { .info = src->info };
 
     char fname[512] = {0};
 
@@ -100,22 +100,24 @@ extract_song(SoundFile *src, AppOutput *out,
     }
 
     if (song_filename(outdir, out->song, format, fname, sizeof(fname)) < 0) {
-        return -1;
+        goto FAIL;
     }
 
-    if (!soundfile_open(&dest, fname, SFM_WRITE)) {
-        return -1;
+    if (!audiofile_open(&dest, fname, SFM_WRITE)) {
+        goto FAIL;
     }
 
     if (sf_seek(src->file, start, SEEK_SET) < 0) {
-        return -1;
+        goto FAIL;
     }
 
     if (extract_section(src, &dest, start, end, songbuf, buflen) < 0) {
-        soundfile_close(&dest);
-        return -1;
+        goto FAIL;
     }
 
-    soundfile_close(&dest);
+    audiofile_close(&dest);
     return 0;
+FAIL:
+    audiofile_close(&dest);
+    return -1;
 }

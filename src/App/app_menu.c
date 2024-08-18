@@ -6,9 +6,10 @@
 #include <stdarg.h>
 
 #include "App/AppOutput.h"
+#include "Audio/AudioFile.h"
 #include "Types/Error.h"
 #include "Audio/extract_song.h"
-#include "Audio/soundfile.h"
+#include "Audio/AudioFile.h"
 #include "Debug/assert.h"
 #include "Audio/song_frame_offset.h"
 #include "App/app_menu.h"
@@ -84,7 +85,7 @@ enum SongInteractFail {
 };
 
 static enum SongInteractFail
-song_interact(const char *outdir, SoundFile *src, Timestamps *ts, size_t idx,
+song_interact(const char *outdir, AudioFile *src, Timestamps *ts, size_t idx,
         double *songbuf, sf_count_t buflen) {
     Song *cur = stack_mod_index(ts, idx);
     Song *next = stack_mod_index(ts, idx + 1);
@@ -112,7 +113,7 @@ union Error
 app_menu(const char *outdir, const char *audiopath, Timestamps *ts) {
     union Error y = error_level(LEVEL_SUCCESS);
 
-    struct SoundFile snd = {0};
+    struct AudioFile snd = {0};
 
     double songbuf[4096];
     const size_t len = LENGTH(songbuf);
@@ -123,7 +124,7 @@ app_menu(const char *outdir, const char *audiopath, Timestamps *ts) {
         return error_msg("no audio provided");
     }
 
-    if (!soundfile_open(&snd, audiopath, SFM_READ)) {
+    if (!audiofile_open(&snd, audiopath, SFM_READ)) {
         return error_msg("could not open '%s': %s",
                 audiopath, sf_strerror(snd.file));
     }
@@ -165,6 +166,6 @@ app_menu(const char *outdir, const char *audiopath, Timestamps *ts) {
         }}
     }
 
-    soundfile_close(&snd);
+    audiofile_close(&snd);
     return y;
 }
