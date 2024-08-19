@@ -140,6 +140,8 @@ stack_cleanup(struct Stack *stk, CloseCallback free_elem) {
 
 void
 stack_reclaim(struct Stack *stk, CloseCallback free_elem) {
+    (void) stk;
+    (void) free_elem;
 }
 
 #undef STACK_IMPL

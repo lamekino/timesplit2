@@ -57,6 +57,8 @@ static int
 extract_section(AudioFile *src, AudioFile *dest, const sf_count_t start,
         const sf_count_t finish, double *songbuf, sf_count_t buflen) {
     const int channels = src->info.channels;
+    /* BUG: we need to account for incorrect input, ie if the mix is shorter
+     * than the timestamps given */
     const int is_last_song = (start > finish);
 
     sf_count_t pos, copy_size;
@@ -68,6 +70,8 @@ extract_section(AudioFile *src, AudioFile *dest, const sf_count_t start,
     ) {
         sf_count_t remaining = (finish - pos) * channels;
 
+        /* TODO: precompute length so that we don't need an extra case for the
+         * last song in the mix */
         copy_size = is_last_song? buflen : MIN(remaining, buflen);
 
         if (sf_read_double(src->file, songbuf, copy_size) <= 0) {

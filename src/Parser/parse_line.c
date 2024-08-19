@@ -80,8 +80,6 @@ timestamp_field_verify(const wchar_t *timestamp, size_t len,
 
 static time_t
 parse_line_timestamp(const wchar_t *timestamp, size_t len) {
-    const wchar_t *const base = timestamp;
-
     TimestampValue ts[FIELD_COUNT] = {0};
     enum TimestampField fieldno = timestamp_field_num(timestamp, len);
 
