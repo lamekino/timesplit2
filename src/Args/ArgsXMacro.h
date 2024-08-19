@@ -6,7 +6,7 @@
  *
  * we add a:
  * X(FLAG_NULL, NULL, '\0', NULL)
- * to the top of the xmacro definition, so when code gets generated any lookup
+ * to the top of the X definition, so when code gets generated any lookup
  * should resolve to the FLAG_NULL label
  */
 
@@ -20,14 +20,21 @@
  * )
  */
 #define ARGUMENT_XMACRO(X) \
-X(FLAG_HELP, "view this help", \
+X(FLAG_HELP, \
+    "view this help", \
     'h', "--help") \
-X(FLAG_EXTRACT_ALL, "extract all songs found", \
-     'a', "--all") \
-X(FLAG_EXTRACT_OUTPUT, "[TODO] set the directory for songs to be extracted to", \
-     'o', "--output") \
-X(FLAG_TIMESTAMPS_FILE, "use a file to read timestamps instead of stdin", \
-     'i', "--timestamps")
+X(FLAG_EXTRACT_ALL, \
+    "extract all songs found", \
+    'a', "--all") \
+X(FLAG_EXTRACT_OUTPUT, \
+    "set the directory for songs to be extracted to", \
+    'o', "--output") \
+X(FLAG_TIMESTAMPS_FILE, \
+    "use a file to read timestamps instead of stdin", \
+    'i', "--timestamps") \
+X(FLAG_ARTIST_NAME, \
+    "[TODO]: manually set a artist name", \
+    'A', "--artist")
 
 typedef enum {
     /* WARN: this is actually required to make GCC not treat this as signed */
