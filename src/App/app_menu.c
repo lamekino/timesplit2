@@ -158,10 +158,9 @@ app_menu(const char *outdir, const char *audiopath, Timestamps *ts) {
             break;
         }
         default: {
-            y = (
-                DEBUG_ASSERT(0, "unreachable"),
-                error_level(LEVEL_FAILED)
-            );
+            DEBUG_ASSERT(0, "unreachable");
+
+            y = error_level(LEVEL_FAILED);
             break;
         }}
     }
