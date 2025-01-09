@@ -1,6 +1,7 @@
 EXE_NAME := timesplit2
 
 CC := gcc
+COMPILE_DEBUG := 1
 
 OBJ_DIR := ./obj
 SRC_DIR := ./src
@@ -12,13 +13,14 @@ CPPFLAGS := \
 	-DDEBUG=1
 
 LDFLAGS := -lpthread `pkg-config --cflags --libs sndfile`
+CCFLAGS := -std=c89 -ansi -Wall -Wextra -Werror
 
-CCFLAGS := \
-	-std=c89 -ansi -Wall -Wextra -Werror -Wno-unused-variable \
-	-Wno-unused-parameter -Wno-unused-but-set-variable -Wno-unused-function
 
-ifndef NO_DEBUG
-	CCFLAGS += -ggdb
+ifdef COMPILE_DEBUG
+	CCFLAGS += -ggdb -Wno-unused-variable -Wno-unused-parameter \
+			   -Wno-unused-but-set-variable -Wno-unused-function
+else
+	CCFLAGS += -O3
 endif
 
 SRC := $(shell find $(SRC_DIR) -name "*.c")
