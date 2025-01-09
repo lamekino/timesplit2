@@ -10,7 +10,7 @@ get_short_flag(ArgsXMacro xm) {
 #undef YS
     };
 
-    DEBUG_ASSERT(0 <= xm && xm <= ARGUMENT_XMACRO_COUNT,
+    DEBUG_ASSERT(0 <= xm && xm < ARGUMENT_XMACRO_COUNT,
             "Invalid flag in get_short_flag");
 
     return short_flags[xm];
@@ -24,7 +24,7 @@ get_long_flag(ArgsXMacro xm) {
 #undef YS
     };
 
-    DEBUG_ASSERT(0 <= xm && xm <= ARGUMENT_XMACRO_COUNT,
+    DEBUG_ASSERT(0 <= xm && xm < ARGUMENT_XMACRO_COUNT,
             "Invalid flag in get_long_flag");
 
     return long_flags[xm];
@@ -38,8 +38,28 @@ get_description(ArgsXMacro xm) {
 #undef YS
     };
 
-    DEBUG_ASSERT(0 <= xm && xm <= ARGUMENT_XMACRO_COUNT,
+    DEBUG_ASSERT(0 <= xm && xm < ARGUMENT_XMACRO_COUNT,
             "Invalid flag in get_description");
 
     return descriptions[xm];
+}
+
+struct FlagInfo
+get_flag_info(ArgsXMacro xm) {
+    static const struct FlagInfo information[ARGUMENT_XMACRO_COUNT] = {
+        [FLAG_EXTRACT_OUTPUT] = (struct FlagInfo) {
+            .argcount = 1,
+            .argtype = "dir"
+        },
+
+        [FLAG_TIMESTAMPS_FILE] = (struct FlagInfo) {
+            .argcount = 1,
+            .argtype = "filename"
+        }
+    };
+
+    DEBUG_ASSERT(0 <= xm && xm < ARGUMENT_XMACRO_COUNT,
+            "Invalid flag in get_description");
+
+    return information[xm];
 }

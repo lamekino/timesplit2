@@ -10,30 +10,22 @@
 #include "Debug/assert.h"
 #include "Types/Error.h"
 
-struct ShortFlag {
-    char flag[3];
-};
-
-static struct ShortFlag
-get_short_flag_string(ArgsXMacro xm) {
-    return (struct ShortFlag) {
-        { '-', get_short_flag(xm), '\0' }
-    };
-}
-
 static bool
 is_flag(ArgsXMacro xm, const char *arg, size_t arg_len) {
-    struct ShortFlag sf = get_short_flag_string(xm);
-
-    const char *short_flag = &sf.flag[0];
+    char short_flag = get_short_flag(xm);
     const char *long_flag = get_long_flag(xm);
 
-    if (arg_len < 2) {
+    if (arg_len < 2 || !arg || *arg != '-') {
         return false;
     }
 
-    return strncmp(arg, short_flag, arg_len) == 0
-        || strncmp(arg, long_flag, arg_len) == 0;
+    arg += 1;
+    if (*arg == '-' && long_flag != NULL) {
+        arg += 1;
+        return strncmp(arg, long_flag, arg_len - 2) == 0;
+    }
+
+    return *arg == short_flag;
 }
 
 /* TODO: set_flag.c with all the setter functions (set help, set_extract_all,
@@ -137,9 +129,7 @@ resolve_argument_flag(const char *arg) {
     }
 
     for (xm = 0; xm < ARGUMENT_XMACRO_COUNT; xm++) {
-        bool has_flag = is_flag(xm, arg, arglen);
-
-        if (has_flag) {
+        if (is_flag(xm, arg, arglen)) {
             return xm;
         }
     }
@@ -149,7 +139,6 @@ resolve_argument_flag(const char *arg) {
 
 union Error
 process_args(char *argv[], struct ArgsConfig *config) {
-
     char **argp = &argv[1];
 
     ArgsXMacro flag = -1;
