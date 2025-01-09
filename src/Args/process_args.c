@@ -7,7 +7,7 @@
 #include "Args/usage.h"
 
 #include "App/app_extract_all.h"
-#include "Debug/assert.h"
+#include "Macro/assert.h"
 #include "Types/Error.h"
 
 static bool

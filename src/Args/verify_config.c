@@ -3,7 +3,7 @@
 #include "App/app_menu.h"
 #include "Args/ArgsConfig.h"
 #include "Types/Error.h"
-#include "Debug/assert.h"
+#include "Macro/assert.h"
 
 static void
 check_defaults(struct ArgsConfig *config) {

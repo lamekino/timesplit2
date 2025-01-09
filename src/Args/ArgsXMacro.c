@@ -1,6 +1,6 @@
 #include "Args/ArgsXMacro.h"
 
-#include "Debug/assert.h"
+#include "Macro/assert.h"
 
 char
 get_short_flag(ArgsXMacro xm) {
