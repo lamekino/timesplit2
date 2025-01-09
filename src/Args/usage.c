@@ -108,10 +108,11 @@ print_usage_descriptions(FILE *stream) {
 
 static void
 print_synopsis(FILE *stream) {
-    const char *timesplit2 = "TimeSplit2";
-    fprintf(stream,
-            "%s is for slicing sound files, such as breaking a mix"
-            "into its individual songs.\n", timesplit2);
+    const char *synopsis =
+        "TimeSplit2 is a tool for slicing sound files, such as breaking a mix "
+        "into its individual songs.";
+
+    fprintf(stream, "%s\n", synopsis);
 }
 
 void
