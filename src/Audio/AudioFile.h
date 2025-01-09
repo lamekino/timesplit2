@@ -5,6 +5,7 @@
 struct AudioFile {
     SNDFILE *file;
     SF_INFO info;
+    sf_count_t len;
 };
 
 typedef const struct AudioFile AudioFile;
