@@ -5,20 +5,20 @@ CC := gcc
 OBJ_DIR := ./obj
 SRC_DIR := ./src
 
-LDFLAGS := \
+CPPFLAGS := \
 	-I$(SRC_DIR) \
-	-lpthread \
-	`pkg-config --cflags --libs sndfile`
+	-D_POSIX_C_SOURCE=200809L \
+	-D_XOPEN_SOURCE=500 \
+	-DDEBUG=1
 
-CCFLAGS = \
-	-std=c89 -ansi -ggdb -Wall -Wextra -Werror -Wno-unused-variable \
-	-Wno-unused-parameter -Wno-unused-but-set-variable -Wno-unused-function \
-	-D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=500 -DDEBUG=1
+LDFLAGS := -lpthread `pkg-config --cflags --libs sndfile`
 
-ifeq ($(DEBUG),)
-	CCFLAGS = \
-		-std=c89 -ansi -O3 -Wall -Wextra -Werror -Wno-unused-function \
-		-D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=500
+CCFLAGS := \
+	-std=c89 -ansi -Wall -Wextra -Werror -Wno-unused-variable \
+	-Wno-unused-parameter -Wno-unused-but-set-variable -Wno-unused-function
+
+ifndef NO_DEBUG
+	CCFLAGS += -ggdb
 endif
 
 SRC := $(shell find $(SRC_DIR) -name "*.c")
@@ -28,7 +28,8 @@ ifeq ($(PREFIX),)
 	PREFIX := $(HOME)/.local
 endif
 
-all: $(EXE_NAME)
+all: $(OBJ)
+	$(CC) $(CPPFLAGS) $(LDFLAGS) -o $(EXE_NAME) $^
 
 clean:
 	rm -fr out-audio $(OBJ_DIR) $(EXE_NAME)
@@ -39,16 +40,12 @@ install: all
 compile_commands.json:
 	@bear -- make
 
-$(EXE_NAME): $(OBJ)
-	@mkdir out-audio || true
-	$(CC) $(LDFLAGS) -o $@ $^
-
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(SRC_DIR)/%.h
 	@mkdir -p $(dir $@) || true
-	$(CC) $(CCFLAGS) $(LDFLAGS) -c -o $@ $<
+	$(CC) $(CCFLAGS) $(CPPFLAGS) $(LDFLAGS) -c -o $@ $<
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(dir $@) || true
-	$(CC) $(CCFLAGS) $(LDFLAGS) -c -o $@ $<
+	$(CC) $(CCFLAGS) $(CPPFLAGS) $(LDFLAGS) -c -o $@ $<
 
 .PHONY: all clean install compile_commands.json
