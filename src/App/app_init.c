@@ -4,7 +4,7 @@
 #include "Types/Stack.h"
 
 union Error
-init(const char *localename, int argc, struct Stack *mem) {
+app_init(const char *localename, int argc, struct Stack *mem) {
     if (argc < 2) {
         return error_level(LEVEL_FAILED);
     }

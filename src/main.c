@@ -1,10 +1,11 @@
 #include <stdlib.h>
 
-#include "App/init.h"
+#include "App/app_init.h"
 #include "Args/ArgsConfig.h"
 #include "Args/process_args.h"
 #include "Args/verify_config.h"
 #include "Parser/parse_file.h"
+#include "Types/Error.h"
 
 #define STACK_IMPL
 #include "Types/Stack.h"
@@ -15,13 +16,22 @@
 #define ERROR_IMPL
 #include "Types/Error.h"
 
+#ifndef LOCALE_NAME
+#define LOCALE_NAME "en_US.UTF-8"
+#endif
+
 int
 main(int argc, char *argv[]) {
     union Error err = {0};
     struct Stack songs = {0};
     struct ArgsConfig config = {0};
 
-    err = init("en_US.UTF-8", argc, &songs);
+    if (argc == 1) {
+        err = error_msg("missing argument, use -h to view help");
+        goto FAIL;
+    }
+
+    err = app_init(LOCALE_NAME, argc, &songs);
     if (IS_ERROR(err)) {
         goto FAIL;
     }
