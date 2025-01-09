@@ -66,9 +66,11 @@ print_usage_header(FILE *stream, const char *progname) {
 
 static void
 print_positional_arguments(FILE *stream) {
+    int padding = PADDING_SHORT + PADDING_LONG + 3; /* -, -- */
+
     fprintf(stream, "positional arguments:\n");
     fprintf(stream, "%*s", INDENT, " ");
-    fprintf(stream, "%-*s", PADDING_LONG, "<path to audio>");
+    fprintf(stream, "%-*s", padding, "<path to audio>");
     fprintf(stream, "the location of the file to splice\n");
 }
 
