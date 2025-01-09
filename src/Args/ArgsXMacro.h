@@ -22,19 +22,19 @@
 #define ARGUMENT_XMACRO(X) \
 X(FLAG_HELP, \
     "view this help", \
-    'h', "--help") \
+    'h', "help") \
 X(FLAG_EXTRACT_ALL, \
     "extract all songs found", \
-    'a', "--all") \
+    '\0', "all") \
 X(FLAG_EXTRACT_OUTPUT, \
     "set the directory for songs to be extracted to", \
-    'o', "--output") \
+    'o', "output") \
 X(FLAG_TIMESTAMPS_FILE, \
     "use a file to read timestamps instead of stdin", \
-    'i', "--timestamps") \
+    'i', "timestamps") \
 X(FLAG_ARTIST_NAME, \
     "[TODO]: manually set a artist name", \
-    'A', "--artist")
+    'A', "artist")
 
 typedef enum {
     /* WARN: this is actually required to make GCC not treat this as signed */
@@ -47,6 +47,13 @@ typedef enum {
     ARGUMENT_XMACRO_COUNT
 } ArgsXMacro;
 
+#define FLAG_INFO_INDEFINITE -1
+
+struct FlagInfo {
+    int argcount;
+    const char *argtype;
+};
+
 char
 get_short_flag(ArgsXMacro xm);
 
@@ -56,3 +63,6 @@ get_long_flag(ArgsXMacro xm);
 
 const char *
 get_description(ArgsXMacro xm);
+
+struct FlagInfo
+get_flag_info(ArgsXMacro xm);

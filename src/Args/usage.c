@@ -5,6 +5,7 @@
 
 #define PADDING_LONG 16
 #define PADDING_SHORT 4
+#define INDENT 4
 
 static int
 print_flag_arg_info(FILE *stream, const struct FlagInfo *info) {
@@ -28,6 +29,9 @@ print_usage_header(FILE *stream, const char *progname) {
 
     ArgsXMacro xm;
 
+    fprintf(stream, "usage:\n");
+
+    count += fprintf(stream, "%*s", INDENT, " ");
     count += namelen = fprintf(stream, "%s", progname);
 
     for (xm = 1; xm < ARGUMENT_XMACRO_COUNT; xm++) {
@@ -53,7 +57,7 @@ print_usage_header(FILE *stream, const char *progname) {
 
         count += fprintf(stream, "]");
         if ((size_t) count >= threshold) {
-            count = fprintf(stream, "\n%-*s", namelen, "");
+            count = fprintf(stream, "\n%*s", INDENT + namelen, " ");
         }
     }
 
@@ -61,14 +65,16 @@ print_usage_header(FILE *stream, const char *progname) {
 }
 
 static void
+print_positional_arguments(FILE *stream) {
+    fprintf(stream, "positional arguments:\n");
+    fprintf(stream, "%*s", INDENT, " ");
+    fprintf(stream, "%-*s", PADDING_LONG, "<path to audio>");
+    fprintf(stream, "the location of the file to splice\n");
+}
+
+static void
 print_usage_descriptions(FILE *stream) {
     ArgsXMacro xm;
-
-    fprintf(stream, "positional arguments:\n");
-    fprintf(stream, "    %-*s %s\n",
-            PADDING_LONG, "<path to audio>",
-            "the location of the file to splice");
-    fprintf(stream, "\n");
 
     fprintf(stream, "options:\n");
     for (xm = 0; xm < ARGUMENT_XMACRO_COUNT; xm++) {
@@ -77,17 +83,19 @@ print_usage_descriptions(FILE *stream) {
 
         fprintf(stream, "    ");
         if (flagshort) {
-            int padding = flaglong
-                ? PADDING_SHORT
-                : PADDING_SHORT + PADDING_LONG + 2;
+            int padding =  PADDING_SHORT;
+            if (!flaglong) {
+                padding = PADDING_SHORT + PADDING_LONG + 2; /* -- */
+            }
 
             fprintf(stream, "-%-*c", padding, flagshort);
         }
 
         if (flaglong) {
-            int padding = flagshort
-                ? PADDING_LONG
-                : PADDING_LONG + PADDING_SHORT + 1;
+            int padding =  PADDING_LONG;
+            if (!flagshort) {
+                padding = PADDING_SHORT + PADDING_LONG + 1; /* - */
+            }
 
             fprintf(stream, "--%-*s", padding, flaglong);
         }
@@ -96,13 +104,24 @@ print_usage_descriptions(FILE *stream) {
     }
 }
 
+static void
+print_synopsis(FILE *stream) {
+    const char *timesplit2 = "TimeSplit2";
+    fprintf(stream,
+            "%s is for slicing sound files, such as breaking a mix"
+            "into its individual songs.\n", timesplit2);
+}
+
 void
 usage(FILE *stream, const char *progname) {
-    print_usage_header(stream, progname);
+    print_synopsis(stream);
+    fprintf(stream, "\n");
 
-    fprintf(stream, "\n%s can be used to slice audio formats into smaller "
-            "files, ie breaking a mix into its individual songs.\n\n",
-            progname);
+    print_usage_header(stream, progname);
+    fprintf(stream, "\n");
+
+    print_positional_arguments(stream);
+    fprintf(stream, "\n");
 
     print_usage_descriptions(stream);
 }
