@@ -19,6 +19,9 @@
 typedef int TimestampValue;
 
 enum TimestampField {
+    /* OMFG gcc needs to stop making enums unsigned! */
+    __gib_sign = -1,
+
     TS_SEC,
     TS_MIN,
     TS_HOUR,
@@ -87,7 +90,7 @@ parse_line_timestamp(const wchar_t *timestamp, size_t len) {
         return -1;
     }
 
-    while (fieldno > 0) {
+    while (fieldno >= TS_SEC) {
         const wchar_t *start = timestamp;
 
         size_t digitlen = len;

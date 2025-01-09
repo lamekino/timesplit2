@@ -97,7 +97,8 @@ wcs_digit_sum(const wchar_t *digits, size_t len) {
             return -1;
         }
 
-        sum += 10 * sum + WCDIGIT(digits[i]);
+        sum *= 10;
+        sum += WCDIGIT(digits[i]);
     }
 
     return sum;
