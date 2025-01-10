@@ -11,6 +11,7 @@
 #include "Audio/extract_song.h"
 #include "Audio/AudioFile.h"
 #include "Macro/assert.h"
+#include "Macro/length.h"
 #include "Audio/song_frame_offset.h"
 #include "App/app_menu.h"
 
@@ -18,8 +19,6 @@
 
 #define DEFAULT_PROMPT "type -1 to quit >> "
 #define MSG_PROMPT(msg) (msg "\n" DEFAULT_PROMPT)
-
-#define LENGTH(xs) (sizeof(xs)/sizeof((xs)[0]))
 
 typedef const struct Stack Timestamps;
 
@@ -90,7 +89,7 @@ song_interact(const char *outdir, AudioFile *src, Timestamps *ts, size_t idx,
     Song *cur = stack_mod_index(ts, idx);
     Song *next = stack_mod_index(ts, idx + 1);
 
-    AppOutput out = app_output_create(outdir, cur, next, src->info.samplerate);
+    AppOutput out = app_output_create(outdir, cur, next, src);
 
     if (!src->info.seekable) {
         return SONG_INTERACT_FAIL_SEEKABLE;

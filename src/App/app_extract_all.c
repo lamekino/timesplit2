@@ -3,6 +3,7 @@
 #include "App/AppOutput.h"
 #include "Audio/AudioFile.h"
 #include "Audio/extract_song.h"
+#include "Audio/mt_extract_song.h"
 #include "Audio/song_frame_offset.h"
 #include "Types/Error.h"
 #include "App/app_extract_all.h"
@@ -29,9 +30,9 @@ app_extract_all(const char *outdir, const char *audiopath,
         Song *next = stack_mod_index(ts, idx + 1);
 
         AppOutput out =
-            app_output_create(outdir, cur, next, audio.info.samplerate);
+            app_output_create(outdir, cur, next, &audio);
 
-        printf("Extracting: '%ls'\n", cur->title);
+        printf("Extracting: '%ls' [+%ld]\n", cur->title, cur->timestamp);
 
         if (extract_song(&audio, &out, songbuf, buflen) < 0) {
             return error_msg("failed to extract '%s'", cur->title);

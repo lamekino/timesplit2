@@ -2,6 +2,7 @@
 
 #include <sndfile.h>
 
+#include "Audio/AudioFile.h"
 #include "Types/Song.h"
 
 struct AppOutput {
@@ -14,4 +15,4 @@ struct AppOutput {
 typedef const struct AppOutput AppOutput;
 
 struct AppOutput
-app_output_create(const char *outdir, Song *cur, Song *next, size_t rate);
+app_output_create(const char *outdir, Song *cur, Song *next, AudioFile *src);
