@@ -3,13 +3,11 @@
 #include "App/AppOutput.h"
 #include "Audio/AudioFile.h"
 #include "Audio/extract_song.h"
-#include "Audio/mt_extract_song.h"
 #include "Audio/song_frame_offset.h"
 #include "Types/Error.h"
 #include "App/app_extract_all.h"
 #include "Types/Stack.h"
-
-#define LENGTH(xs) (sizeof(xs)/sizeof(*xs))
+#include "Macro/length.h"
 
 union Error
 app_extract_all(const char *outdir, const char *audiopath,
