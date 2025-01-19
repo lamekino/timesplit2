@@ -11,7 +11,7 @@
 #include "Macro/length.h"
 
 union Error
-app_extract_all(const struct ArgsConfig *config, struct Stack *ts) {
+app_extract_all(const struct ArgsConfig *config, const struct Stack *ts) {
     struct AudioFile audio = {0};
     size_t idx;
 

@@ -4,4 +4,4 @@
 #include "Types/Error.h"
 #include "Args/ArgsConfig.h"
 
-typedef union Error AppMode(const struct ArgsConfig *, struct Stack *);
+typedef union Error AppMode(const struct ArgsConfig *, const struct Stack *);

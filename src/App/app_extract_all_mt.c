@@ -1,80 +1,80 @@
 #include <sndfile.h>
 #include <stdint.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
+#include <limits.h>
 #include <errno.h>
 #include <pthread.h>
 
 #include "App/AppOutput.h"
+#include "App/app_extract_all_mt.h"
 #include "Args/ArgsConfig.h"
 #include "Audio/AudioFile.h"
 #include "Audio/extract_song.h"
 #include "Audio/song_frame_offset.h"
+#include "Macro/min.h"
 #include "Types/Error.h"
-#include "App/app_extract_all_mt.h"
 #include "Types/Song.h"
 #include "Types/Stack.h"
-#include "Macro/min.h"
-#include "Macro/max.h"
 
 #define BUFFER_SIZE 4096u
-#define THREAD_COUNT 13
+/* TODO: use dynamic allocation, remove max */
+#define THREAD_MAX 16
+#define DEFAULT_THREAD_COUNT 4
 
 #define THREAD_ERROR(err) ((void *) (err).description)
 
 typedef double sndbuffer_t;
 
 struct ThreadParams {
-    const struct Stack *remaining;
+    const struct Stack *tracklist;
 
     const char *outdir;
     const char *srcfile;
 
+    size_t *shared_idx;
     sndbuffer_t *sndbuffer;
     pthread_mutex_t *lock;
 };
 
 static void *
-app_extract_worker(void *extract_params) {
-    static size_t counter = 0;
+app_extract_worker(void *thread_params) {
+    union Error y = {0};
 
-    struct ThreadParams *thread = (struct ThreadParams *) extract_params;
+    struct ThreadParams *thread = (struct ThreadParams *) thread_params;
 
     const char *srcfile = thread->srcfile;
     const char *outdir = thread->outdir;
 
     sndbuffer_t *sndbuffer = thread->sndbuffer;
-    const struct Stack *tracks = thread->remaining;
+    const struct Stack *tracks = thread->tracklist;
 
     struct Song *cursong = NULL;
     struct Song *nextsong = NULL;
 
     struct AudioFile audiosrc = {0};
 
-    union Error err = {0};
-
     if (!audiofile_open(&audiosrc, srcfile, SFM_READ)) {
-        err = error_msg("could not open '%s', %s",
+        y = error_msg("could not open '%s': %s",
                 srcfile, sf_error(audiosrc.file));
-        goto FAIL;
+        goto THREAD_EXIT;
     }
 
-    while (counter < tracks->count) {
+    while (*thread->shared_idx < tracks->count) {
         struct AppOutput output;
 
         if (pthread_mutex_lock(thread->lock) != 0) {
-            err = error_msg("could not lock thread: %s", strerror(errno));
-            goto FAIL;
+            y = error_msg("could not lock thread: %s", strerror(errno));
+            goto THREAD_EXIT;
         }
 
-        /* TODO: use a queue instead */
-        cursong = stack_mod_index(tracks, counter);
-        counter++;
-        nextsong = stack_mod_index(tracks, counter);
+        cursong = stack_mod_index(tracks, *thread->shared_idx);
+        (*thread->shared_idx)++;
+        nextsong = stack_mod_index(tracks, *thread->shared_idx);
 
         if (pthread_mutex_unlock(thread->lock) != 0) {
-            err = error_msg("could not unlock thread: %s", strerror(errno));
-            goto FAIL;
+            y = error_msg("could not unlock thread: %s", strerror(errno));
+            goto THREAD_EXIT;
         }
 
         output = app_output_create(outdir, cursong, nextsong, &audiosrc);
@@ -84,62 +84,78 @@ app_extract_worker(void *extract_params) {
 
         if (extract_song(&audiosrc, &output, sndbuffer, BUFFER_SIZE) < 0) {
             fprintf(stderr, "Failed to extract '%ls'!\n", cursong->title);
-            continue;
         }
     }
 
-    if (audiofile_close(&audiosrc) != 0) {
-        err = error_msg("couldn't close audio source: %s", strerror(errno));
-        goto FAIL;
+THREAD_EXIT:
+    if (audiofile_close(&audiosrc) != 0 && !IS_ERROR(y)) {
+        y = error_msg("couldn't close audio source: %s", strerror(errno));
     }
 
-    return NULL;
-FAIL:
-    return THREAD_ERROR(err);
+    return THREAD_ERROR(y);
 }
 
 union Error
-app_extract_all_mt(const struct ArgsConfig *config, struct Stack *ts) {
-    size_t idx;
+app_extract_all_mt(const struct ArgsConfig *config, const struct Stack *ts) {
+    union Error y = {0};
 
-    size_t use_threads = MAX(1, MIN(ts->count, config->thread_count));
+    size_t ti;
 
-    pthread_t threads[THREAD_COUNT];
+    pthread_t threads[THREAD_MAX];
 
-    sndbuffer_t thread_buffers[THREAD_COUNT][BUFFER_SIZE];
+    sndbuffer_t thread_buffers[THREAD_MAX][BUFFER_SIZE];
 
-    struct ThreadParams thread_params[THREAD_COUNT];
+    struct ThreadParams thread_params[THREAD_MAX];
+
+    uintptr_t *thread_rv = NULL;
+
+    size_t shared_idx = 0;
 
     pthread_mutex_t thread_mutex;
 
+    size_t use_threads = MIN(ts->count, config->thread_count);
+
+    if (use_threads == 0) {
+        use_threads = MIN(ts->count, DEFAULT_THREAD_COUNT);
+    }
+
     pthread_mutex_init(&thread_mutex, NULL);
 
-    for (idx = 0; idx < use_threads; idx++) {
-        void *vp = (void *) &thread_params[idx];
+    for (ti = 0; ti < use_threads; ti++) {
+        void *vp = (void *) &thread_params[ti];
 
-        thread_params[idx] = (struct ThreadParams) {
+        thread_params[ti] = (struct ThreadParams) {
             .lock = &thread_mutex,
-            .sndbuffer = thread_buffers[idx],
-            .remaining = ts,
+            .sndbuffer = thread_buffers[ti],
+            .shared_idx = &shared_idx,
+            .tracklist = ts,
             .outdir = config->extract_dir,
             .srcfile = config->audio_path
         };
 
-        if (pthread_create(&threads[idx], NULL, &app_extract_worker, vp) != 0) {
-            return error_msg("could not create thread, exit with: %s",
+        if (pthread_create(&threads[ti], NULL, &app_extract_worker, vp) != 0) {
+            y = error_msg("could not create thread: %s",
                     strerror(errno));
+            goto APP_FAIL;
         }
     }
 
-    for (idx = 0; idx < use_threads; idx++) {
-        uintptr_t *rv = NULL;
-        if (pthread_join(threads[idx], (void *) &rv) != 0) {
-            continue; /* ??? */
+    for (ti = 0; ti < use_threads; ti++) {
+        if (pthread_join(threads[ti], (void *) &thread_rv) != 0) {
+            y = error_msg("could not join thread: %s",
+                    strerror(errno));
+            goto APP_FAIL;
         }
 
-        if (rv != NULL) {
-            return (union Error) { *rv };
+        if (thread_rv != NULL) {
+            y = (union Error) { .description = (char *) thread_rv };
+            goto APP_FAIL;
         }
+    }
+
+APP_FAIL:
+    if (IS_ERROR(y)) {
+        return y;
     }
 
     return error_level(LEVEL_SUCCESS);

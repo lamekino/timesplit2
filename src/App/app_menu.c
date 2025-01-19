@@ -108,7 +108,7 @@ song_interact(const char *outdir, AudioFile *src, const struct Stack *ts,
 }
 
 union Error
-app_menu(const struct ArgsConfig *config, struct Stack *ts) {
+app_menu(const struct ArgsConfig *config, const struct Stack *ts) {
     union Error y = error_level(LEVEL_SUCCESS);
 
     const char *outdir = config->extract_dir;
