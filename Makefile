@@ -34,7 +34,7 @@ all: $(OBJ)
 	$(CC) $(CPPFLAGS) $(LDFLAGS) -o $(EXE_NAME) $^
 
 clean:
-	rm -fr out-audio $(OBJ_DIR) $(EXE_NAME)
+	rm -fr $(OBJ_DIR) $(EXE_NAME)
 
 install: all
 	install -m 0755 $(EXE_NAME) $(PREFIX)/bin

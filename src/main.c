@@ -1,5 +1,6 @@
 #include <stdlib.h>
 
+#include "App/AppMode.h"
 #include "App/app_init.h"
 #include "Args/ArgsConfig.h"
 #include "Args/process_args.h"
@@ -13,6 +14,8 @@
 int
 main(int argc, char *argv[]) {
     const char *locale = "en_US.UTF-8";
+
+    AppMode *app_interact = NULL;
 
     union Error err = {0};
     struct Stack songs = {0};
@@ -28,12 +31,12 @@ main(int argc, char *argv[]) {
         goto FAIL;
     }
 
-    err = process_args(argv, &config);
+    err = process_args(argv, &app_interact, &config);
     if (IS_ERROR(err)) {
         goto FAIL;
     }
 
-    err = verify_config(&config);
+    err = verify_config(&config, &app_interact);
     if (IS_ERROR(err)) {
         goto FAIL;
     }
@@ -43,7 +46,7 @@ main(int argc, char *argv[]) {
         goto FAIL;
     }
 
-    err = config.interact(config.extract_dir, config.audio_path, &songs);
+    err = app_interact(&config, &songs);
     if (IS_ERROR(err)) {
         goto FAIL;
     }

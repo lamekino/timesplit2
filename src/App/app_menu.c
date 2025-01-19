@@ -6,6 +6,7 @@
 #include <stdarg.h>
 
 #include "App/AppOutput.h"
+#include "Args/ArgsConfig.h"
 #include "Audio/AudioFile.h"
 #include "Types/Error.h"
 #include "Audio/extract_song.h"
@@ -19,8 +20,6 @@
 
 #define DEFAULT_PROMPT "type -1 to quit >> "
 #define MSG_PROMPT(msg) (msg "\n" DEFAULT_PROMPT)
-
-typedef const struct Stack Timestamps;
 
 union UserIndex {
     int got;
@@ -56,7 +55,7 @@ read_yes_no(const char *fmt, ...) {
 }
 
 static union UserIndex
-menu_interact(Timestamps *ts, const char *fmt, ...) {
+menu_interact(const struct Stack *ts, const char *fmt, ...) {
     size_t i;
 
     for (i = 0; i < ts->count; i++) {
@@ -84,8 +83,8 @@ enum SongInteractFail {
 };
 
 static enum SongInteractFail
-song_interact(const char *outdir, AudioFile *src, Timestamps *ts, size_t idx,
-        double *songbuf, sf_count_t buflen) {
+song_interact(const char *outdir, AudioFile *src, const struct Stack *ts,
+        size_t idx, double *songbuf, sf_count_t buflen) {
     Song *cur = stack_mod_index(ts, idx);
     Song *next = stack_mod_index(ts, idx + 1);
 
@@ -109,8 +108,10 @@ song_interact(const char *outdir, AudioFile *src, Timestamps *ts, size_t idx,
 }
 
 union Error
-app_menu(const char *outdir, const char *audiopath, Timestamps *ts) {
+app_menu(const struct ArgsConfig *config, struct Stack *ts) {
     union Error y = error_level(LEVEL_SUCCESS);
+
+    const char *outdir = config->extract_dir;
 
     struct AudioFile audio = {0};
 
@@ -119,13 +120,13 @@ app_menu(const char *outdir, const char *audiopath, Timestamps *ts) {
 
     union UserIndex in;
 
-    if (audiopath == NULL) {
+    if (config->audio_path == NULL) {
         return error_msg("no audio provided");
     }
 
-    if (!audiofile_open(&audio, audiopath, SFM_READ)) {
+    if (!audiofile_open(&audio, config->audio_path, SFM_READ)) {
         return error_msg("could not open '%s': %s",
-                audiopath, sf_strerror(audio.file));
+                config->audio_path, sf_strerror(audio.file));
     }
 
     for (

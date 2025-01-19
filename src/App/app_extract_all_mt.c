@@ -6,6 +6,7 @@
 #include <pthread.h>
 
 #include "App/AppOutput.h"
+#include "Args/ArgsConfig.h"
 #include "Audio/AudioFile.h"
 #include "Audio/extract_song.h"
 #include "Audio/song_frame_offset.h"
@@ -97,8 +98,7 @@ FAIL:
 }
 
 union Error
-app_extract_all_mt(const char *outdir, const char *audiopath,
-        const struct Stack *ts) {
+app_extract_all_mt(const struct ArgsConfig *config, struct Stack *ts) {
     size_t idx;
 
     size_t use_threads = MIN(ts->count, THREAD_COUNT);
@@ -120,8 +120,8 @@ app_extract_all_mt(const char *outdir, const char *audiopath,
             .lock = &thread_mutex,
             .sndbuffer = thread_buffers[idx],
             .remaining = ts,
-            .outdir = outdir,
-            .srcfile = audiopath
+            .outdir = config->extract_dir,
+            .srcfile = config->audio_path
         };
 
         if (pthread_create(&threads[idx], NULL, &app_extract_worker, vp) != 0) {

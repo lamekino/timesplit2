@@ -2,5 +2,6 @@
 
 #include "Types/Stack.h"
 #include "Types/Error.h"
+#include "Args/ArgsConfig.h"
 
-typedef union Error AppMode(const char *, const char *, const struct Stack *);
+typedef union Error AppMode(const struct ArgsConfig *, struct Stack *);

@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "Args/process_args.h"
+#include "App/AppMode.h"
 #include "App/app_extract_all_mt.h"
 #include "Args/ArgsXMacro.h"
 #include "Args/ArgsConfig.h"
@@ -32,8 +33,9 @@ is_flag(ArgsXMacro xm, const char *arg, size_t arg_len) {
 /* TODO: set_flag.c with all the setter functions (set help, set_extract_all,
  * etc) */
 static int
-set_flag(ArgsXMacro flag, struct ArgsConfig *config) {
+set_flag(ArgsXMacro flag, AppMode **interact, struct ArgsConfig *config) {
     DEBUG_ASSERT(config, "Null config in set_flag");
+    DEBUG_ASSERT(interact, "Null callback in set_flag");
 
     int pending_args = 0;
 
@@ -43,9 +45,9 @@ set_flag(ArgsXMacro flag, struct ArgsConfig *config) {
     }
     case FLAG_EXTRACT_ALL: {
 #ifndef NO_MT
-        config->interact = &app_extract_all_mt;
+        *interact = &app_extract_all_mt;
 #else
-        config->interact = &app_extract_all;
+        *interact = &app_extract_all;
 #endif
         break;
     }
@@ -143,7 +145,7 @@ resolve_argument_flag(const char *arg) {
 }
 
 union Error
-process_args(char *argv[], struct ArgsConfig *config) {
+process_args(char *argv[], AppMode **interact, struct ArgsConfig *config) {
     char **argp = &argv[1];
 
     ArgsXMacro flag = -1;
@@ -163,7 +165,7 @@ process_args(char *argv[], struct ArgsConfig *config) {
             continue;
         }
 
-        pending_args = set_flag(flag, config);
+        pending_args = set_flag(flag, interact, config);
         if (pending_args < 0) {
             return error_msg("Error in processing flag: '%s'", cur);
         }

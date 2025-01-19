@@ -1,20 +1,21 @@
 #include <sys/stat.h>
 
+#include "App/AppMode.h"
 #include "App/app_menu.h"
 #include "Args/ArgsConfig.h"
 #include "Types/Error.h"
 #include "Macro/assert.h"
 
 static void
-check_defaults(struct ArgsConfig *config) {
-    if (!config->interact) {
-        config->interact = &app_menu;
+check_defaults(struct ArgsConfig *config, AppMode **interact) {
+    if (!interact && !*interact) {
+        *interact = &app_menu;
     }
 }
 
 static union Error
-check_required(struct ArgsConfig *config) {
-    DEBUG_ASSERT(config->interact != NULL, "missing callback");
+check_required(struct ArgsConfig *config, AppMode **interact) {
+    DEBUG_ASSERT(interact && *interact != NULL, "missing callback");
 
     if (config->extract_dir) {
         struct stat dirstat;
@@ -32,9 +33,9 @@ check_required(struct ArgsConfig *config) {
 }
 
 union Error
-verify_config(struct ArgsConfig *config) {
+verify_config(struct ArgsConfig *config, AppMode **interact) {
     DEBUG_ASSERT(config != NULL, "null config");
 
-    check_defaults(config);
-    return check_required(config);
+    check_defaults(config, interact);
+    return check_required(config, interact);
 }
