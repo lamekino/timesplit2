@@ -51,6 +51,10 @@ set_flag(ArgsXMacro flag, AppMode **interact, struct ArgsConfig *config) {
 #endif
         break;
     }
+    case FLAG_SET_THREADS: {
+        pending_args = 1;
+        break;
+    }
     case FLAG_EXTRACT_OUTPUT: {
         pending_args = 1;
         break;
@@ -67,8 +71,9 @@ set_flag(ArgsXMacro flag, AppMode **interact, struct ArgsConfig *config) {
     return pending_args;
 }
 
+/* TODO: condense this */
 static int
-set_next_arg(char **cur_arg, char **field) {
+set_next_arg_str(char **cur_arg, char **field) {
     char *next_arg = *(cur_arg + 1);
 
     if (next_arg == NULL) {
@@ -76,6 +81,18 @@ set_next_arg(char **cur_arg, char **field) {
     }
 
     *field = next_arg;
+    return 0;
+}
+
+static int
+set_next_arg_digit(char **cur_arg, size_t *field) {
+    char *next_arg = *(cur_arg + 1);
+
+    if (next_arg == NULL) {
+        return -1;
+    }
+
+    *field = atol(next_arg);
     return 0;
 }
 
@@ -102,7 +119,7 @@ set_flag_args(char **cur_arg[], int pending_args, ArgsXMacro flag,
     case FLAG_EXTRACT_OUTPUT: {
         DEBUG_ASSERT(pending_args == 1, "next_arg: pending_args mismatch");
 
-        if (set_next_arg(*cur_arg, &config->extract_dir) < 0) {
+        if (set_next_arg_str(*cur_arg, &config->extract_dir) < 0) {
             return -1;
         }
         break;
@@ -110,7 +127,15 @@ set_flag_args(char **cur_arg[], int pending_args, ArgsXMacro flag,
     case FLAG_TIMESTAMPS_FILE: {
         DEBUG_ASSERT(pending_args == 1, "next_arg: pending_args mismatch");
 
-        if (set_next_arg(*cur_arg, &config->timestamps_path) < 0) {
+        if (set_next_arg_str(*cur_arg, &config->timestamps_path) < 0) {
+            return -1;
+        }
+        break;
+    }
+    case FLAG_SET_THREADS: {
+        DEBUG_ASSERT(pending_args == 1, "next_arg: pending_args mismatch");
+
+        if (set_next_arg_digit(*cur_arg, &config->thread_count) < 0) {
             return -1;
         }
         break;

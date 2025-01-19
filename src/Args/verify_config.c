@@ -8,14 +8,16 @@
 
 static void
 check_defaults(struct ArgsConfig *config, AppMode **interact) {
-    if (!interact && !*interact) {
+    DEBUG_ASSERT(interact, "missing callback ptr");
+
+    if (!*interact) {
         *interact = &app_menu;
     }
 }
 
 static union Error
 check_required(struct ArgsConfig *config, AppMode **interact) {
-    DEBUG_ASSERT(interact && *interact != NULL, "missing callback");
+    DEBUG_ASSERT(*interact != NULL, "missing callback");
 
     if (config->extract_dir) {
         struct stat dirstat;

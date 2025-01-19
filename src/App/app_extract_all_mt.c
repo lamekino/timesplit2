@@ -15,6 +15,7 @@
 #include "Types/Song.h"
 #include "Types/Stack.h"
 #include "Macro/min.h"
+#include "Macro/max.h"
 
 #define BUFFER_SIZE 4096u
 #define THREAD_COUNT 13
@@ -101,7 +102,7 @@ union Error
 app_extract_all_mt(const struct ArgsConfig *config, struct Stack *ts) {
     size_t idx;
 
-    size_t use_threads = MIN(ts->count, THREAD_COUNT);
+    size_t use_threads = MAX(1, MIN(ts->count, config->thread_count));
 
     pthread_t threads[THREAD_COUNT];
 

@@ -26,6 +26,9 @@ X(FLAG_HELP, \
 X(FLAG_EXTRACT_ALL, \
     "extract all songs found", \
     '\0', "all") \
+X(FLAG_SET_THREADS, \
+    "set the number of threads to use", \
+    'j', "jobs") \
 X(FLAG_EXTRACT_OUTPUT, \
     "set the directory for songs to be extracted to", \
     'o', "output") \
