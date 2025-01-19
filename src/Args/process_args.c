@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "Args/process_args.h"
+#include "App/app_extract_all_mt.h"
 #include "Args/ArgsXMacro.h"
 #include "Args/ArgsConfig.h"
 #include "Args/usage.h"
@@ -41,7 +42,11 @@ set_flag(ArgsXMacro flag, struct ArgsConfig *config) {
         break;
     }
     case FLAG_EXTRACT_ALL: {
+#ifndef NO_MT
+        config->interact = &app_extract_all_mt;
+#else
         config->interact = &app_extract_all;
+#endif
         break;
     }
     case FLAG_EXTRACT_OUTPUT: {

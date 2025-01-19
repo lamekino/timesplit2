@@ -89,8 +89,8 @@ stack_mod_index(const struct Stack *stk, size_t idx) {
 
 void
 stack_cleanup(struct Stack *stk, CloseCallback free_elem) {
-    while (stk->count > 0 && stk->count--) {
-        free_elem(stk->elems[stk->count]);
+    while (stk->count) {
+        free_elem(stack_pop(stk));
     }
 
     free(stk->elems);

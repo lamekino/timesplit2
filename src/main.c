@@ -6,22 +6,14 @@
 #include "Args/verify_config.h"
 #include "Parser/parse_file.h"
 #include "Types/Error.h"
-
-#define STACK_IMPL
 #include "Types/Stack.h"
-
-#define SONG_IMPL
 #include "Types/Song.h"
-
-#define ERROR_IMPL
 #include "Types/Error.h"
-
-#ifndef LOCALE_NAME
-#define LOCALE_NAME "en_US.UTF-8"
-#endif
 
 int
 main(int argc, char *argv[]) {
+    const char *locale = "en_US.UTF-8";
+
     union Error err = {0};
     struct Stack songs = {0};
     struct ArgsConfig config = {0};
@@ -31,7 +23,7 @@ main(int argc, char *argv[]) {
         goto FAIL;
     }
 
-    err = app_init(LOCALE_NAME, argc, &songs);
+    err = app_init(locale, argc, &songs);
     if (IS_ERROR(err)) {
         goto FAIL;
     }
