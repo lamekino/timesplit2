@@ -27,15 +27,15 @@ stack_create(struct Stack *stk) {
 }
 
 static size_t
-next_capacity(size_t len, size_t cap) {
+stack_next_capacity(size_t len, size_t cap) {
     return len > cap ? 2 * cap + 1 : cap;
 }
 
 static void *
-prepush(void *p, size_t *length, size_t *capacity, size_t elem_size) {
+stack_prepush(void *p, size_t *length, size_t *capacity, size_t elem_size) {
     const size_t cur_cap = *capacity;
     const size_t set_len = *length + 1;
-    const size_t set_cap = next_capacity(set_len, cur_cap);
+    const size_t set_cap = stack_next_capacity(set_len, cur_cap);
 
     if (cur_cap < set_cap) {
         p = realloc(p, set_cap * elem_size);
@@ -57,7 +57,7 @@ stack_push_item(struct Stack *stk, const stack_elem_t item_ptr,
         size_t item_size) {
     stack_elem_t dup = malloc(item_size);
 
-    stack_elem_t *elems = prepush(stk->elems, &stk->count,
+    stack_elem_t *elems = stack_prepush(stk->elems, &stk->count,
             &stk->capacity, sizeof(stack_elem_t));
 
     if (!elems || !dup) {
@@ -94,10 +94,4 @@ stack_cleanup(struct Stack *stk, CloseCallback free_elem) {
     }
 
     free(stk->elems);
-}
-
-void
-stack_reclaim(struct Stack *stk, CloseCallback free_elem) {
-    (void) stk;
-    (void) free_elem;
 }
