@@ -1,7 +1,10 @@
 #include <bits/types/time_t.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 #include <wchar.h>
 #include <wctype.h>
 
@@ -82,26 +85,27 @@ timestamp_field_verify(const wchar_t *timestamp, size_t len,
 }
 
 static time_t
-parse_line_timestamp(const wchar_t *timestamp, size_t len) {
+parse_line_timestamp(const wchar_t *ts_str, size_t len) {
     TimestampValue ts[FIELD_COUNT] = {0};
-    enum TimestampField fieldno = timestamp_field_num(timestamp, len);
+    enum TimestampField fieldno = timestamp_field_num(ts_str, len);
 
     if (fieldno < 0) {
         return -1;
     }
 
     while (fieldno >= TS_SEC) {
-        const wchar_t *start = timestamp;
+        const bool requires_sep = fieldno == TS_HOUR || fieldno == TS_MIN;
+        const wchar_t *start = ts_str;
 
         size_t digitlen = len;
         TimestampValue *fieldcur = &ts[fieldno];
 
-        timestamp = timestamp_next_sep(timestamp, &digitlen, fieldno);
-        if (!timestamp) {
+        ts_str = timestamp_next_sep(ts_str, &digitlen, fieldno);
+        if (!ts_str) {
             return -1;
         }
 
-        if (timestamp_field_verify(timestamp, len, digitlen, fieldno) < 0) {
+        if (timestamp_field_verify(ts_str, len, digitlen, fieldno) < 0) {
             return -1;
         }
 
@@ -110,8 +114,11 @@ parse_line_timestamp(const wchar_t *timestamp, size_t len) {
             return -1;
         }
 
-        /* TODO: make sure there is a separator */
-        timestamp += fieldno == TS_HOUR || fieldno == TS_MIN;
+        if (requires_sep && *ts_str != TS_SEP) {
+            return -1;
+        }
+
+        ts_str += requires_sep;
         fieldno--;
     }
 
