@@ -37,7 +37,10 @@ clean:
 	rm -fr $(OBJ_DIR) $(EXE_NAME)
 
 install: all
-	install -m 0755 $(EXE_NAME) $(PREFIX)/bin
+	install -m 0755 $(EXE_NAME) "$(PREFIX)/bin"
+
+uninstall:
+	test -f "$(PREFIX)/bin/$(EXE_NAME)" || rm "$(PREFIX)/bin/$(EXE_NAME)"
 
 compile_commands.json:
 	@bear -- make
